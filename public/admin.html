@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Symptom Bot</title>
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<style>
+  :root{--bg:#030a10;--bg2:#050f18;--card:#091520;--card2:#05101c;--border:#0d2535;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.12);--text:#e0f0ff;--muted:#4a7a9b;--red:#ff4444;--yellow:#ffcc00;--dim:#1a3a50}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:9999}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:.9rem 2rem;border-bottom:1px solid var(--border2);background:rgba(3,10,16,0.97);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;box-shadow:0 0 20px rgba(0,212,255,0.08)}
+  .topbar-logo{display:flex;align-items:center;gap:.7rem}
+  .topbar-logo img{width:36px;height:36px;border-radius:50%;border:1px solid var(--yellow);box-shadow:0 0 10px rgba(255,204,0,.4);object-fit:cover}
+  .topbar-name{font-size:.95rem;font-weight:700;color:var(--accent);letter-spacing:.15em}
+  .topbar-name span{color:var(--yellow)}
+  .topbar-right{display:flex;align-items:center;gap:.8rem}
+  .admin-badge{padding:.3rem .85rem;border-radius:4px;font-size:.72rem;font-weight:700;background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.25);color:var(--yellow);letter-spacing:.08em}
+
+  .btn{padding:.55rem 1.1rem;border-radius:4px;border:none;cursor:pointer;font-family:'Courier New',monospace;font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;transition:all .2s}
+  .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-primary{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+  .btn-primary:hover{background:var(--accent);color:#000;box-shadow:0 0 15px var(--accent)}
+  .btn-success{background:transparent;border:1px solid var(--accent2);color:var(--accent2);padding:.3rem .75rem;font-size:.72rem}
+  .btn-success:hover{background:var(--accent2);color:#000}
+  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);padding:.3rem .75rem;font-size:.72rem}
+  .btn-danger:hover{background:var(--red);color:#fff}
+  .btn-sm{padding:.3rem .65rem;font-size:.7rem}
+
+  .content{max-width:1200px;margin:0 auto;padding:1.8rem;position:relative;z-index:1}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+  .stat-card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:1.3rem;position:relative;overflow:hidden}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  .stat-card h4{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+  .stat-val{font-size:1.8rem;font-weight:700;letter-spacing:.08em}
+  .c-accent{color:var(--accent);text-shadow:0 0 10px var(--accent)}
+  .c-green{color:var(--accent2);text-shadow:0 0 10px var(--accent2)}
+  .c-yellow{color:var(--yellow)}
+  .c-red{color:var(--red)}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:.8rem;flex-wrap:wrap}
+  .toolbar input,.toolbar select{padding:.52rem .9rem;background:#030d16;border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:.8rem;font-family:'Courier New',monospace;outline:none;transition:all .2s}
+  .toolbar input:focus,.toolbar select:focus{border-color:var(--accent);box-shadow:0 0 8px var(--glow)}
+  .toolbar input::placeholder{color:var(--dim)}
+  .toolbar select option{background:var(--card)}
+  .toolbar input{min-width:220px}
+
+  .table-wrap{background:var(--card);border:1px solid var(--border2);border-radius:8px;overflow:hidden;position:relative}
+  .table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  table{width:100%;border-collapse:collapse}
+  th{padding:.75rem 1rem;text-align:left;font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border2);background:#040e18;white-space:nowrap}
+  td{padding:.75rem 1rem;font-size:.8rem;border-bottom:1px solid rgba(0,212,255,0.04);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(0,212,255,0.02)}
+
+  .status-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:4px;font-size:.7rem;font-weight:700;white-space:nowrap;letter-spacing:.04em}
+  .s-active{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.25);color:#00ff9f}
+  .s-inactive{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);color:#ff9999}
+  .s-connected{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.25);color:#00ff9f}
+  .s-stopped,.s-disconnected{background:rgba(74,122,155,.08);border:1px solid rgba(74,122,155,.2);color:#4a7a9b}
+  .s-starting,.s-reconnecting{background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.2);color:#ffcc00}
+
+  .actions-cell{display:flex;gap:.4rem;flex-wrap:wrap}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px)}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:2rem;max-width:480px;width:90%;box-shadow:0 0 40px var(--glow);position:relative}
+  .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  .modal h3{margin-bottom:.8rem;font-size:.95rem;letter-spacing:.08em;color:var(--accent)}
+  .modal p{color:var(--muted);font-size:.82rem;margin-bottom:1.4rem;font-family:system-ui;line-height:1.6}
+  .modal-btns{display:flex;gap:.8rem;justify-content:flex-end}
+
+  .log-box{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:300px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.73rem;line-height:1.7;color:var(--muted)}
+  .log-box::-webkit-scrollbar{width:4px}
+  .log-box::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.3rem;border-radius:6px;font-size:.78rem;font-family:'Courier New',monospace;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;letter-spacing:.04em}
+  #toast.show{opacity:1;transform:translateY(0)}
+
+  .loading{color:var(--muted);text-align:center;padding:3rem;font-size:.8rem;letter-spacing:.1em}
+  .empty{color:var(--dim);text-align:center;padding:2.5rem;font-size:.8rem}
+  .section-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin:1.8rem 0 1rem;padding-bottom:.4rem;border-bottom:1px solid var(--border2)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <img src="/logo.jpg" alt="Symptom Bot">
+    <div>
+      <div class="topbar-name">SYMPTOM<span>_BOT</span> :: ADMIN_PANEL</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="admin-badge">👑 SUPERADMIN</span>
+    <a href="/dashboard"><button class="btn btn-outline">← DASHBOARD</button></a>
+    <button class="btn btn-outline" onclick="logout()">[ LOGOUT ]</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h4>[!] Total_Nodes</h4>
+      <div class="stat-val c-accent" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <h4>[!] Active_Nodes</h4>
+      <div class="stat-val c-green" id="statActive">—</div>
+    </div>
+    <div class="stat-card">
+      <h4>[!] Bots_Online</h4>
+      <div class="stat-val c-yellow" id="statBots">—</div>
+    </div>
+    <div class="stat-card">
+      <h4>[!] Pending_Activation</h4>
+      <div class="stat-val c-red" id="statPending">—</div>
+    </div>
+  </div>
+
+  <div class="section-label">── NODE_REGISTRY ──</div>
+
+  <div class="toolbar">
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+      <input type="text" id="searchInput" placeholder="🔍 SEARCH_NODE..." oninput="filterUsers()">
+      <select id="filterStatus" onchange="filterUsers()">
+        <option value="all">ALL_NODES</option>
+        <option value="active">ACTIVE</option>
+        <option value="inactive">PENDING</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="loadUsers()">↻ REFRESH</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>NODE_ID</th>
+          <th>EMAIL</th>
+          <th>LINKED_NUM</th>
+          <th>ACCOUNT</th>
+          <th>BOT_STATUS</th>
+          <th>REGISTERED</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable">
+        <tr><td colspan="7" class="loading">[ LOADING NODES... ]</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">[ CONFIRM_ACTION ]</h3>
+    <p id="confirmMsg"></p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">[ CANCEL ]</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="doConfirm()">[ CONFIRM ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log modal -->
+<div class="modal-overlay" id="logModal">
+  <div class="modal" style="max-width:700px;width:95%">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h3 id="logModalTitle">[ CONSOLE_LOGS ]</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('logModal')">[ CLOSE ]</button>
+    </div>
+    <div class="log-box" id="logModalContent"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let token = localStorage.getItem('kb_token')
+let role = localStorage.getItem('kb_role')
+let allUsers = []
+let confirmAction = null
+let socket = null
+
+if (!token || role !== 'superadmin') { window.location.href = '/dashboard' }
+
+function toast(msg, type='info') {
+  const t = document.getElementById('toast')
+  t.textContent = '[SYS] ' + msg
+  t.style.borderColor = type === 'error' ? '#ff4444' : type === 'success' ? '#00ff9f' : '#0f3248'
+  t.style.color = type === 'error' ? '#ff9999' : type === 'success' ? '#00ff9f' : '#e0f0ff'
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 3000)
+}
+
+function logout() { localStorage.clear(); window.location.href = '/' }
+function openModal(id) { document.getElementById(id).classList.add('open') }
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+
+async function fetchAdmin(url, opts = {}) {
+  opts.headers = { ...(opts.headers||{}), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
+  const r = await fetch(url, opts)
+  if (r.status === 401 || r.status === 403) { window.location.href = '/dashboard'; return null }
+  return r
+}
+
+async function loadStats() {
+  const r = await fetchAdmin('/api/admin/stats')
+  if (!r) return
+  const d = await r.json()
+  document.getElementById('statTotal').textContent = d.totalUsers
+  document.getElementById('statActive').textContent = d.activeUsers
+  document.getElementById('statBots').textContent = d.botsRunning
+  document.getElementById('statPending').textContent = allUsers.filter(u => !u.active).length || 0
+}
+
+async function loadUsers() {
+  const r = await fetchAdmin('/api/admin/users')
+  if (!r) return
+  const d = await r.json()
+  allUsers = d.users || []
+  loadStats()
+  filterUsers()
+}
+
+function filterUsers() {
+  const q = document.getElementById('searchInput').value.toLowerCase()
+  const f = document.getElementById('filterStatus').value
+  let users = allUsers
+  if (q) users = users.filter(u => u.username.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q))
+  if (f === 'active') users = users.filter(u => u.active)
+  if (f === 'inactive') users = users.filter(u => !u.active)
+  document.getElementById('statPending').textContent = allUsers.filter(u => !u.active).length
+  renderUsers(users)
+}
+
+function renderUsers(users) {
+  const tb = document.getElementById('usersTable')
+  if (!users.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">[ NO_NODES_FOUND ]</td></tr>'; return }
+
+  tb.innerHTML = users.map(u => {
+    const accountBadge = u.role === 'superadmin'
+      ? '<span class="status-badge" style="background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.2);color:#ffcc00">👑 ADMIN</span>'
+      : u.active
+        ? '<span class="status-badge s-active">● ACTIVE</span>'
+        : '<span class="status-badge s-inactive">● PENDING</span>'
+
+    const botStatus = u.botStatus?.status || 'stopped'
+    const botBadge = `<span class="status-badge s-${botStatus}">● ${botStatus.toUpperCase()}</span>`
+    const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'
+    const phone = u.phoneNumber ? '+' + u.phoneNumber : '—'
+    const isAdmin = u.role === 'superadmin'
+
+    const actions = isAdmin ? '<span style="color:var(--dim);font-size:.72rem">PROTECTED</span>' : `
+      <div class="actions-cell">
+        ${u.active
+          ? `<button class="btn btn-danger" onclick="confirmDeactivate('${u.username}')">DEACTIVATE</button>`
+          : `<button class="btn btn-success" onclick="confirmActivate('${u.username}')">✓ ACTIVATE</button>`
+        }
+        <button class="btn btn-outline btn-sm" onclick="viewLogs('${u.username}')">LOGS</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('${u.username}')">DELETE</button>
+      </div>`
+
+    return `<tr>
+      <td><strong style="color:var(--accent);letter-spacing:.05em">${u.username}</strong></td>
+      <td style="color:var(--muted)">${u.email || '—'}</td>
+      <td style="color:var(--accent2)">${phone}</td>
+      <td>${accountBadge}</td>
+      <td>${botBadge}</td>
+      <td style="color:var(--muted);font-size:.72rem">${joined}</td>
+      <td>${actions}</td>
+    </tr>`
+  }).join('')
+}
+
+function confirmActivate(username) {
+  document.getElementById('confirmTitle').textContent = '[ ACTIVATE_NODE ]'
+  document.getElementById('confirmMsg').textContent = `Grant access to node "${username}"? They will be able to login and start their bot session.`
+  document.getElementById('confirmBtn').className = 'btn btn-success'
+  document.getElementById('confirmBtn').textContent = '[ ✓ ACTIVATE ]'
+  confirmAction = () => activate(username)
+  openModal('confirmModal')
+}
+
+function confirmDeactivate(username) {
+  document.getElementById('confirmTitle').textContent = '[ DEACTIVATE_NODE ]'
+  document.getElementById('confirmMsg').textContent = `Revoke access for "${username}"? Their bot will be stopped and they cannot login.`
+  document.getElementById('confirmBtn').className = 'btn btn-danger'
+  document.getElementById('confirmBtn').textContent = '[ DEACTIVATE ]'
+  confirmAction = () => deactivate(username)
+  openModal('confirmModal')
+}
+
+function confirmDelete(username) {
+  document.getElementById('confirmTitle').textContent = '[ DELETE_NODE ]'
+  document.getElementById('confirmMsg').textContent = `Permanently purge node "${username}"? All data and session files will be destroyed. This cannot be undone.`
+  document.getElementById('confirmBtn').className = 'btn btn-danger'
+  document.getElementById('confirmBtn').textContent = '[ 🗑 PURGE_NODE ]'
+  confirmAction = () => deleteUser(username)
+  openModal('confirmModal')
+}
+
+function doConfirm() { closeModal('confirmModal'); if (confirmAction) { confirmAction(); confirmAction = null } }
+
+async function activate(username) {
+  const r = await fetchAdmin('/api/admin/activate', { method: 'POST', body: JSON.stringify({ username }) })
+  if (!r) return
+  const d = await r.json()
+  if (r.ok) { toast('NODE_ACTIVATED :: ' + username, 'success'); loadUsers() } else toast(d.error, 'error')
+}
+
+async function deactivate(username) {
+  const r = await fetchAdmin('/api/admin/deactivate', { method: 'POST', body: JSON.stringify({ username }) })
+  if (!r) return
+  const d = await r.json()
+  if (r.ok) { toast('NODE_DEACTIVATED :: ' + username, 'success'); loadUsers() } else toast(d.error, 'error')
+}
+
+async function deleteUser(username) {
+  const r = await fetchAdmin(`/api/admin/user/${username}`, { method: 'DELETE' })
+  if (!r) return
+  const d = await r.json()
+  if (r.ok) { toast('NODE_PURGED :: ' + username, 'success'); loadUsers() } else toast(d.error, 'error')
+}
+
+async function viewLogs(username) {
+  document.getElementById('logModalTitle').textContent = `[ CONSOLE_LOGS :: ${username.toUpperCase()} ]`
+  document.getElementById('logModalContent').textContent = '[ FETCHING LOGS... ]'
+  openModal('logModal')
+  const r = await fetchAdmin(`/api/admin/logs/${username}`)
+  if (!r || !r.ok) { document.getElementById('logModalContent').textContent = '[ NO_LOGS_AVAILABLE ]'; return }
+  const d = await r.json()
+  document.getElementById('logModalContent').textContent = (d.logs || []).join('\n') || '[ NO_LOGS_YET ]'
+}
+
+// Real-time updates
+socket = io({ auth: { token } })
+socket.on('bot-status-update', ({ username, status }) => {
+  const user = allUsers.find(u => u.username === username)
+  if (user) { user.botStatus = { status }; filterUsers() }
+})
+
+loadUsers()
+setInterval(loadUsers, 30000)
+</script>
+</body>
+</html>

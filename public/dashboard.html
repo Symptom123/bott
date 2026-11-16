@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Symptom Bot</title>
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<style>
+  :root{--bg:#030a10;--bg2:#050f18;--card:#091520;--card2:#05101c;--border:#0d2535;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.12);--glow2:rgba(0,255,159,0.1);--text:#e0f0ff;--muted:#4a7a9b;--red:#ff4444;--yellow:#ffcc00;--dim:#1a3a50}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:9999}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  /* AUTH SCREEN */
+  #authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;position:relative;z-index:1}
+  .auth-wrap{width:100%;max-width:420px}
+  .logo-wrap{text-align:center;margin-bottom:1.5rem}
+  .logo-wrap img{width:80px;height:80px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 25px var(--accent);object-fit:cover;margin-bottom:.8rem}
+  .logo-title{font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:.2em;text-shadow:0 0 15px var(--accent)}
+  .logo-title span{color:var(--accent2)}
+  .logo-sub{font-size:.72rem;color:var(--muted);letter-spacing:.1em;margin-top:.2rem}
+  .card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:2rem;box-shadow:0 0 30px var(--glow)}
+  .card-title{font-size:.9rem;color:var(--accent);letter-spacing:.1em;margin-bottom:1.3rem;text-transform:uppercase}
+  .fg{margin-bottom:1rem}
+  label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.35rem;letter-spacing:.08em;text-transform:uppercase}
+  input{width:100%;padding:.7rem 1rem;background:#030d16;border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:.88rem;font-family:'Courier New',monospace;outline:none;transition:all .2s}
+  input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
+  input::placeholder{color:var(--dim)}
+  .btn{padding:.65rem 1.2rem;border-radius:4px;border:none;cursor:pointer;font-family:'Courier New',monospace;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+  .btn-primary{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+  .btn-primary:hover{background:var(--accent);color:#000;box-shadow:0 0 18px var(--accent)}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed}
+  .btn-full{width:100%;padding:.82rem;margin-top:.3rem}
+  .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red)}
+  .btn-danger:hover{background:var(--red);color:#fff}
+  .btn-green{background:transparent;border:1px solid var(--accent2);color:var(--accent2)}
+  .btn-green:hover{background:var(--accent2);color:#000}
+  .alert{padding:.7rem 1rem;border-radius:4px;font-size:.8rem;margin-top:.7rem;display:none;font-family:system-ui}
+  .alert-error{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);color:#ff9999}
+  .alert-success{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
+  .links{text-align:center;margin-top:1.2rem;font-size:.78rem;color:var(--muted)}
+  .links a{color:var(--accent);text-decoration:none}
+
+  /* DASHBOARD */
+  #dashboard{display:none;position:relative;z-index:1}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:.9rem 2rem;border-bottom:1px solid var(--border2);background:rgba(3,10,16,0.97);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;box-shadow:0 0 20px rgba(0,212,255,0.08)}
+  .topbar-logo{display:flex;align-items:center;gap:.7rem}
+  .topbar-logo img{width:36px;height:36px;border-radius:50%;border:1px solid var(--accent);box-shadow:0 0 10px var(--accent);object-fit:cover}
+  .topbar-name{font-size:.95rem;font-weight:700;color:var(--accent);letter-spacing:.15em}
+  .topbar-name span{color:var(--accent2)}
+  .topbar-right{display:flex;align-items:center;gap:.8rem}
+  .user-badge{background:var(--card2);border:1px solid var(--border2);padding:.3rem .85rem;border-radius:4px;font-size:.78rem;color:var(--muted);letter-spacing:.05em}
+  .content{max-width:1100px;margin:0 auto;padding:1.8rem}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.3rem}
+  @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+  .panel{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:1.4rem;position:relative;overflow:hidden}
+  .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  .panel-title{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+  .panel-title::before{content:'[!]';color:var(--accent);font-size:.65rem}
+  .stat-val{font-size:1.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-shadow:0 0 10px var(--accent)}
+  .stat-val.green{color:var(--accent2);text-shadow:0 0 10px var(--accent2)}
+  .stat-val.red{color:var(--red)}
+  .stat-val.yellow{color:var(--yellow)}
+
+  /* Status badge */
+  .status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .8rem;border-radius:4px;font-size:.78rem;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.05em}
+  .status-connected{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
+  .status-stopped,.status-disconnected{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.25);color:#ff9999}
+  .status-starting,.status-waiting-pairing,.status-reconnecting{background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.25);color:#ffcc00}
+
+  /* Pairing box */
+  .pairing-box{background:#030d16;border:1px dashed var(--accent);border-radius:8px;padding:1.4rem;text-align:center;margin-top:1rem;display:none}
+  .pairing-code{font-size:2rem;font-weight:700;letter-spacing:.4em;color:var(--accent2);text-shadow:0 0 15px var(--accent2);font-family:'Courier New',monospace}
+  .pairing-hint{font-size:.75rem;color:var(--muted);margin-top:.6rem;line-height:1.7}
+
+  /* Console */
+  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:280px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
+  .console::-webkit-scrollbar{width:4px}
+  .console::-webkit-scrollbar-track{background:transparent}
+  .console::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+  .log-entry{color:var(--muted);padding:.1rem 0}
+  .log-entry.info{color:var(--accent2)}
+  .log-entry.error{color:#ff9999}
+
+  /* Section labels */
+  .section-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin:1.8rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border2)}
+
+  /* Commands */
+  .cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}
+  .cmd-tag{background:var(--card2);border:1px solid var(--border2);border-radius:4px;padding:.35rem .7rem;font-size:.72rem;font-family:'Courier New',monospace;color:var(--accent);transition:all .2s}
+  .cmd-tag:hover{border-color:var(--accent);box-shadow:0 0 8px var(--glow)}
+
+  /* Settings row */
+  .settings-row{display:flex;gap:.8rem;align-items:flex-end}
+  .settings-row input{flex:1}
+
+  /* Toast */
+  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.3rem;border-radius:6px;font-size:.8rem;font-family:'Courier New',monospace;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;max-width:300px;letter-spacing:.04em}
+  #toast.show{opacity:1;transform:translateY(0)}
+
+  .admin-link-card{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1.3rem;display:flex;align-items:center;justify-content:space-between;margin-top:1.3rem}
+  .admin-link-label{font-size:.82rem;color:var(--accent);letter-spacing:.05em}
+  .admin-link-sub{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="authScreen">
+  <div class="auth-wrap">
+    <div class="logo-wrap">
+      <img src="/logo.jpg" alt="Symptom Bot">
+      <div class="logo-title">SYMPTOM<span>_BOT</span></div>
+      <div class="logo-sub">[ ACCESS_PORTAL :: AUTHENTICATION_REQUIRED ]</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&gt; Authenticate Node</div>
+      <form id="loginForm">
+        <div class="fg">
+          <label>Node ID (Username)</label>
+          <input type="text" id="loginUsername" placeholder="your_username" required>
+        </div>
+        <div class="fg">
+          <label>Access Key (Password)</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">[ AUTHENTICATE ]</button>
+        <div class="alert alert-error" id="loginErr"></div>
+      </form>
+      <div class="links" style="margin-top:1.2rem">No node? <a href="/register">[ REGISTER_NODE ]</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <img src="/logo.jpg" alt="Symptom Bot">
+      <div>
+        <div class="topbar-name">SYMPTOM<span>_BOT</span></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="user-badge" id="topUsername">NODE: ...</span>
+      <button class="btn btn-outline" onclick="logout()">[ LOGOUT ]</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stat panels -->
+    <div class="grid-3">
+      <div class="panel">
+        <div class="panel-title">BOT_STATUS</div>
+        <div><span class="status-badge status-stopped" id="statusBadge">⚫ OFFLINE</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">LINKED_NUMBER</div>
+        <div class="stat-val" id="phoneDisplay" style="font-size:1rem;color:var(--accent2)">NOT_SET</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">ACCESS_LEVEL</div>
+        <div class="stat-val" id="roleDisplay" style="font-size:1rem">USER</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Left: Control -->
+      <div>
+        <div class="panel">
+          <div class="panel-title">BOT_CONTROL_MATRIX</div>
+          <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem">
+            <button class="btn btn-green" onclick="startBot()" id="startBtn">▶ START_BOT</button>
+            <button class="btn btn-danger" onclick="stopBot()" id="stopBtn">⏹ STOP_BOT</button>
+            <button class="btn btn-outline" onclick="refreshStatus()">↻ REFRESH</button>
+          </div>
+
+          <div class="pairing-box" id="pairingBox">
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;letter-spacing:.08em">[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES</div>
+            <div class="pairing-code" id="pairingCodeDisplay">----</div>
+            <div class="pairing-hint">
+              WhatsApp → Settings → Linked Devices<br>→ Link a Device → Link with phone number
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:1.2rem">
+          <div class="panel-title">LINKED_NUMBER_CONFIG</div>
+          <p style="color:var(--muted);font-size:.75rem;margin-bottom:.8rem;font-family:system-ui">WhatsApp number with country code (no + sign)</p>
+          <div class="settings-row">
+            <input type="tel" id="phoneInput" placeholder="237620323830">
+            <button class="btn btn-primary" onclick="savePhone()">[ SAVE ]</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:1.2rem">
+          <div class="panel-title">CHANGE_ACCESS_KEY</div>
+          <div class="fg"><label>Current Key</label><input type="password" id="curPwd" placeholder="current password"></div>
+          <div class="fg"><label>New Key</label><input type="password" id="newPwd" placeholder="new password (min 6)"></div>
+          <button class="btn btn-primary" onclick="changePwd()">[ UPDATE_KEY ]</button>
+        </div>
+      </div>
+
+      <!-- Right: Console -->
+      <div>
+        <div class="panel" style="height:100%">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
+            <div class="panel-title" style="margin:0">CONSOLE_OUTPUT</div>
+            <button class="btn btn-outline" style="padding:.25rem .6rem;font-size:.7rem" onclick="clearConsole()">[ CLR ]</button>
+          </div>
+          <div class="console" id="consoleOutput">
+            <div class="log-entry info">[SYSTEM] AWAITING NODE ACTIVATION...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commands -->
+    <div class="section-label">── AVAILABLE_COMMANDS ──</div>
+    <div class="panel">
+      <div class="cmd-grid">
+        <span class="cmd-tag">.menu / .help</span>
+        <span class="cmd-tag">.ai &lt;query&gt;</span>
+        <span class="cmd-tag">.gpt &lt;query&gt;</span>
+        <span class="cmd-tag">.gemini &lt;query&gt;</span>
+        <span class="cmd-tag">.play &lt;song&gt;</span>
+        <span class="cmd-tag">.song &lt;song&gt;</span>
+        <span class="cmd-tag">.video &lt;query&gt;</span>
+        <span class="cmd-tag">.spotify &lt;song&gt;</span>
+        <span class="cmd-tag">.tiktok &lt;url&gt;</span>
+        <span class="cmd-tag">.ig &lt;url&gt;</span>
+        <span class="cmd-tag">.fb &lt;url&gt;</span>
+        <span class="cmd-tag">.vv (reply)</span>
+        <span class="cmd-tag">.sticker</span>
+        <span class="cmd-tag">.kick @user</span>
+        <span class="cmd-tag">.promote @user</span>
+        <span class="cmd-tag">.demote @user</span>
+        <span class="cmd-tag">.antilink on/off</span>
+        <span class="cmd-tag">.tagall</span>
+        <span class="cmd-tag">.alive</span>
+        <span class="cmd-tag">.ping</span>
+        <span class="cmd-tag">.weather &lt;city&gt;</span>
+        <span class="cmd-tag">.trt &lt;text&gt;</span>
+        <span class="cmd-tag">.ban @user</span>
+        <span class="cmd-tag">.mute &lt;mins&gt;</span>
+      </div>
+    </div>
+
+    <!-- Admin link -->
+    <div id="adminLinkRow" style="display:none">
+      <div class="admin-link-card">
+        <div>
+          <div class="admin-link-label">👑 SUPER_ADMIN :: CONTROL_PANEL</div>
+          <div class="admin-link-sub">Manage all nodes, activate/deactivate access, view system logs</div>
+        </div>
+        <a href="/admin"><button class="btn btn-primary">[ OPEN_ADMIN ] →</button></a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let token = localStorage.getItem('kb_token')
+let username = localStorage.getItem('kb_user')
+let role = localStorage.getItem('kb_role')
+let socket = null
+
+function toast(msg, type='info') {
+  const t = document.getElementById('toast')
+  t.textContent = '[SYS] ' + msg
+  t.style.borderColor = type === 'error' ? '#ff4444' : type === 'success' ? '#00ff9f' : '#0f3248'
+  t.style.color = type === 'error' ? '#ff9999' : type === 'success' ? '#00ff9f' : '#e0f0ff'
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 3000)
+}
+
+function logout() {
+  localStorage.clear()
+  if (socket) socket.disconnect()
+  location.reload()
+}
+
+function setStatusBadge(status) {
+  const b = document.getElementById('statusBadge')
+  const map = {
+    'connected':       ['🟢 ONLINE',            'status-connected'],
+    'starting':        ['🟡 STARTING...',        'status-starting'],
+    'waiting-pairing': ['🟡 AWAITING_PAIR',      'status-waiting-pairing'],
+    'reconnecting':    ['🟡 RECONNECTING...',     'status-reconnecting'],
+    'disconnected':    ['🔴 DISCONNECTED',        'status-disconnected'],
+    'stopped':         ['⚫ OFFLINE',             'status-stopped'],
+    'logged-out':      ['🔴 LOGGED_OUT',          'status-disconnected'],
+  }
+  const [text, cls] = map[status] || ['⚫ UNKNOWN', 'status-stopped']
+  b.textContent = text
+  b.className = 'status-badge ' + cls
+}
+
+function addLog(msg) {
+  const c = document.getElementById('consoleOutput')
+  const d = document.createElement('div')
+  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') ? ' info' : ''))
+  d.textContent = msg
+  c.appendChild(d)
+  c.scrollTop = c.scrollHeight
+}
+
+function clearConsole() { document.getElementById('consoleOutput').innerHTML = '' }
+
+async function fetchWithAuth(url, opts = {}) {
+  opts.headers = { ...(opts.headers || {}), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
+  const r = await fetch(url, opts)
+  if (r.status === 401 || r.status === 403) { logout(); return null }
+  return r
+}
+
+async function refreshStatus() {
+  const r = await fetchWithAuth('/api/user/status')
+  if (!r) return
+  const data = await r.json()
+  setStatusBadge(data.status)
+  if ((data.status === 'waiting-pairing') && data.pairingCode) {
+    document.getElementById('pairingBox').style.display = 'block'
+    document.getElementById('pairingCodeDisplay').textContent = data.pairingCode
+  } else if (data.status === 'connected') {
+    document.getElementById('pairingBox').style.display = 'none'
+  }
+}
+
+async function loadLogs() {
+  const r = await fetchWithAuth('/api/user/logs')
+  if (!r) return
+  const data = await r.json()
+  clearConsole()
+  if (!data.logs.length) addLog('[SYSTEM] No logs yet — start your bot.')
+  data.logs.forEach(l => addLog(l))
+}
+
+async function startBot() {
+  const btn = document.getElementById('startBtn')
+  btn.disabled = true; btn.textContent = '⏳ INITIALIZING...'
+  try {
+    const r = await fetchWithAuth('/api/user/bot/start', { method: 'POST' })
+    if (!r) return
+    const d = await r.json()
+    if (!r.ok) toast(d.error, 'error'); else { toast('BOT_STARTING', 'success'); refreshStatus() }
+  } finally { btn.disabled=false; btn.textContent='▶ START_BOT' }
+}
+
+async function stopBot() {
+  const btn = document.getElementById('stopBtn')
+  btn.disabled = true; btn.textContent = '⏳ STOPPING...'
+  try {
+    const r = await fetchWithAuth('/api/user/bot/stop', { method: 'POST' })
+    if (!r) return
+    const d = await r.json()
+    toast(d.message || d.error, r.ok ? 'success' : 'error')
+    refreshStatus()
+  } finally { btn.disabled=false; btn.textContent='⏹ STOP_BOT' }
+}
+
+async function savePhone() {
+  const phone = document.getElementById('phoneInput').value.trim()
+  if (!phone) return toast('ENTER_PHONE_NUMBER', 'error')
+  const r = await fetchWithAuth('/api/user/update-phone', { method: 'POST', body: JSON.stringify({ phoneNumber: phone }) })
+  if (!r) return
+  const d = await r.json()
+  if (r.ok) { document.getElementById('phoneDisplay').textContent = '+' + d.phoneNumber; toast('NUMBER_SAVED', 'success') }
+  else toast(d.error, 'error')
+}
+
+async function changePwd() {
+  const currentPassword = document.getElementById('curPwd').value
+  const newPassword = document.getElementById('newPwd').value
+  if (!currentPassword || !newPassword) return toast('FILL_BOTH_FIELDS', 'error')
+  const r = await fetchWithAuth('/api/user/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) })
+  if (!r) return
+  const d = await r.json()
+  if (r.ok) { toast('KEY_UPDATED', 'success'); document.getElementById('curPwd').value=''; document.getElementById('newPwd').value='' }
+  else toast(d.error, 'error')
+}
+
+async function initDashboard() {
+  const r = await fetchWithAuth('/api/user/me')
+  if (!r) return
+  const user = await r.json()
+  document.getElementById('topUsername').textContent = 'NODE: ' + user.username
+  document.getElementById('roleDisplay').textContent = user.role === 'superadmin' ? '👑 SUPERADMIN' : '👤 USER'
+  if (user.phoneNumber) {
+    document.getElementById('phoneDisplay').textContent = '+' + user.phoneNumber
+    document.getElementById('phoneInput').value = user.phoneNumber
+  }
+  if (user.role === 'superadmin') document.getElementById('adminLinkRow').style.display = 'block'
+  setStatusBadge(user.botStatus?.status || 'stopped')
+  if (user.botStatus?.pairingCode) {
+    document.getElementById('pairingBox').style.display = 'block'
+    document.getElementById('pairingCodeDisplay').textContent = user.botStatus.pairingCode
+  }
+  await loadLogs()
+
+  socket = io({ auth: { token } })
+  socket.on('bot-log', ({ message }) => addLog(message))
+  socket.on('bot-status', ({ status, pairingCode }) => {
+    setStatusBadge(status)
+    if (pairingCode) {
+      document.getElementById('pairingBox').style.display = 'block'
+      document.getElementById('pairingCodeDisplay').textContent = pairingCode
+    }
+    if (status === 'connected') document.getElementById('pairingBox').style.display = 'none'
+  })
+  socket.on('pairing-code', ({ code }) => {
+    document.getElementById('pairingBox').style.display = 'block'
+    document.getElementById('pairingCodeDisplay').textContent = code
+    toast('PAIRING_CODE_READY', 'success')
+  })
+  socket.on('account-deactivated', () => { toast('ACCOUNT_DEACTIVATED', 'error'); setTimeout(logout, 3000) })
+
+  setInterval(refreshStatus, 30000)
+}
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const loginUsername = document.getElementById('loginUsername').value.trim()
+  const loginPassword = document.getElementById('loginPassword').value
+  const btn = document.getElementById('loginBtn')
+  const errEl = document.getElementById('loginErr')
+  btn.disabled = true; btn.textContent = '[ AUTHENTICATING... ]'; errEl.style.display = 'none'
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: loginUsername, password: loginPassword })
+    })
+    const d = await r.json()
+    if (!r.ok) {
+      errEl.textContent = '[!] AUTH_FAILED :: ' + d.error
+      errEl.style.display = 'block'
+    } else {
+      localStorage.setItem('kb_token', d.token)
+      localStorage.setItem('kb_user', d.username)
+      localStorage.setItem('kb_role', d.role)
+      token = d.token; username = d.username; role = d.role
+      document.getElementById('authScreen').style.display = 'none'
+      document.getElementById('dashboard').style.display = 'block'
+      initDashboard()
+    }
+  } catch { errEl.textContent = '[!] NETWORK_ERROR — Connection refused'; errEl.style.display = 'block' }
+  finally { btn.disabled = false; btn.textContent = '[ AUTHENTICATE ]' }
+})
+
+if (token) {
+  document.getElementById('authScreen').style.display = 'none'
+  document.getElementById('dashboard').style.display = 'block'
+  initDashboard()
+}
+</script>
+</body>
+</html>

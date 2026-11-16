@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Symptom Bot</title>
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<style>
+  :root{--bg:#030a10;--card:#091520;--border:#0d2535;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.15);--text:#e0f0ff;--muted:#4a7a9b;--red:#ff4444;--dim:#1a3a50}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .container{width:100%;max-width:440px;z-index:1}
+  .logo-wrap{text-align:center;margin-bottom:1.5rem}
+  .logo-wrap img{width:72px;height:72px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 20px var(--accent);object-fit:cover;margin-bottom:.7rem}
+  .logo-title{font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:.2em;text-shadow:0 0 10px var(--accent)}
+  .logo-title span{color:var(--accent2)}
+  .logo-sub{font-size:.72rem;color:var(--muted);letter-spacing:.1em;margin-top:.2rem}
+  .card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:2rem;box-shadow:0 0 30px var(--glow)}
+  .card-title{font-size:1rem;color:var(--accent);letter-spacing:.1em;margin-bottom:1.4rem;text-transform:uppercase}
+  .fg{margin-bottom:1rem}
+  label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.08em;text-transform:uppercase}
+  input{width:100%;padding:.72rem 1rem;background:#030d16;border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:.88rem;font-family:'Courier New',monospace;outline:none;transition:border-color .2s,box-shadow .2s}
+  input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
+  input::placeholder{color:var(--dim)}
+  .hint{font-size:.72rem;color:var(--dim);margin-top:.3rem;letter-spacing:.03em}
+  .btn{width:100%;padding:.8rem;border-radius:4px;border:1px solid var(--accent);cursor:pointer;font-family:'Courier New',monospace;font-size:.88rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem;transition:all .2s;background:transparent;color:var(--accent)}
+  .btn:hover{background:var(--accent);color:#000;box-shadow:0 0 20px var(--accent)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .alert{padding:.8rem 1rem;border-radius:4px;font-size:.8rem;margin-top:.8rem;display:none;letter-spacing:.03em;font-family:system-ui,sans-serif}
+  .alert-error{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);color:#ff9999}
+  .alert-success{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
+  .links{text-align:center;margin-top:1.2rem;font-size:.78rem;color:var(--muted);letter-spacing:.05em}
+  .links a{color:var(--accent);text-decoration:none}
+  .links a:hover{text-shadow:0 0 8px var(--accent)}
+  .status-line{font-size:.7rem;color:var(--accent2);margin-bottom:1.2rem;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo-wrap">
+    <img src="/logo.jpg" alt="Symptom Bot">
+    <div class="logo-title">SYMPTOM<span>_BOT</span></div>
+    <div class="logo-sub">[ REGISTER_NODE :: CREATE_ACCOUNT ]</div>
+  </div>
+
+  <div class="card">
+    <div class="status-line">● STATUS :: REGISTRATION_OPEN</div>
+    <div class="card-title">&gt; Initialize New Node</div>
+    <form id="registerForm">
+      <div class="fg">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="e.g. johndoe_99" required minlength="3" maxlength="20">
+        <div class="hint">&gt; 3-20 chars · letters, numbers, underscore only</div>
+      </div>
+      <div class="fg">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="your@email.com" required>
+      </div>
+      <div class="fg">
+        <label>WhatsApp Number</label>
+        <input type="tel" id="phoneNumber" placeholder="237620323830 (country code, no +)">
+        <div class="hint">&gt; Can be set later from your dashboard</div>
+      </div>
+      <div class="fg">
+        <label>Access Key (Password)</label>
+        <input type="password" id="password" placeholder="Min 6 characters" required minlength="6">
+      </div>
+      <div class="fg">
+        <label>Confirm Access Key</label>
+        <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+      </div>
+      <button type="submit" class="btn" id="submitBtn">[ REGISTER_NODE ]</button>
+      <div class="alert alert-error" id="errAlert"></div>
+      <div class="alert alert-success" id="successAlert"></div>
+    </form>
+    <div class="links" style="margin-top:1.5rem">Already have a node? <a href="/dashboard">[ ACCESS_PORTAL ]</a></div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('registerForm')
+  const errAlert = document.getElementById('errAlert')
+  const successAlert = document.getElementById('successAlert')
+  const submitBtn = document.getElementById('submitBtn')
+
+  function showError(msg) { errAlert.textContent = '[!] ERROR :: ' + msg; errAlert.style.display='block'; successAlert.style.display='none' }
+  function showSuccess(msg) { successAlert.textContent = '[✓] ' + msg; successAlert.style.display='block'; errAlert.style.display='none' }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const username = document.getElementById('username').value.trim()
+    const email = document.getElementById('email').value.trim()
+    const phoneNumber = document.getElementById('phoneNumber').value.trim()
+    const password = document.getElementById('password').value
+    const confirmPassword = document.getElementById('confirmPassword').value
+
+    if (password !== confirmPassword) return showError('ACCESS_KEY_MISMATCH — Passwords do not match')
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) return showError('INVALID_NODE_ID — Use 3-20 alphanumeric chars')
+
+    submitBtn.disabled = true; submitBtn.textContent = '[ INITIALIZING... ]'
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, phoneNumber, password })
+      })
+      const data = await res.json()
+      if (!res.ok) { showError(data.error || 'REGISTRATION_FAILED') }
+      else {
+        showSuccess('NODE_REGISTERED — Awaiting admin activation. Redirecting to portal...')
+        form.reset()
+        setTimeout(() => window.location.href = '/dashboard', 3500)
+      }
+    } catch { showError('NETWORK_ERROR — Connection refused. Try again.') }
+    finally { submitBtn.disabled=false; submitBtn.textContent='[ REGISTER_NODE ]' }
+  })
+</script>
+</body>
+</html>
