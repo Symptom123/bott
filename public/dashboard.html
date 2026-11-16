@@ -53,6 +53,7 @@
   .topbar-name{font-size:.95rem;font-weight:700;color:var(--accent);letter-spacing:.15em}
   .topbar-name span{color:var(--accent2)}
   .topbar-right{display:flex;align-items:center;gap:.8rem}
+  .sync-badge{padding:.25rem .6rem;border-radius:4px;font-size:.68rem;letter-spacing:.05em;background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.25);color:var(--accent2)}
   .user-badge{background:var(--card2);border:1px solid var(--border2);padding:.3rem .85rem;border-radius:4px;font-size:.78rem;color:var(--muted);letter-spacing:.05em}
   .content{max-width:1100px;margin:0 auto;padding:1.8rem}
 
@@ -147,6 +148,7 @@
       </div>
     </div>
     <div class="topbar-right">
+      <span class="sync-badge" id="syncBadge">🟢 BACKEND_CONNECTED</span>
       <span class="user-badge" id="topUsername">NODE: ...</span>
       <button class="btn btn-outline" onclick="logout()">[ LOGOUT ]</button>
     </div>
@@ -176,12 +178,12 @@
         <div class="panel">
           <div class="panel-title">WHATSAPP_PAIRING_STATION</div>
           <p style="color:var(--muted);font-size:.76rem;margin-bottom:.8rem;line-height:1.5">
-            Enter your WhatsApp number with country code (e.g. <strong>237652673304</strong> or <strong>237620323830</strong>).
-            <br><span style="color:var(--yellow)">⚠️ Must match the exact phone number in your WhatsApp profile!</span>
+            Type the <strong>exact phone number</strong> of your WhatsApp account (country code + number, no + sign).
+            <br><span style="color:var(--yellow)">⚠️ Example: <strong>237620323830</strong> or <strong>237652673304</strong></span>
           </p>
 
           <div class="settings-row" style="margin-bottom:.9rem">
-            <input type="tel" id="pairPhoneInput" placeholder="e.g. 237652673304">
+            <input type="tel" id="pairPhoneInput" placeholder="e.g. 237620323830">
             <button class="btn btn-green" id="pairBtn" onclick="pairWhatsApp()">⚡ GET PAIRING CODE</button>
           </div>
 
@@ -191,8 +193,13 @@
             <button class="btn btn-outline btn-sm" onclick="refreshStatus()">↻ STATUS</button>
           </div>
 
-          <!-- Pairing code output -->
+          <div class="alert alert-error" id="panelError" style="margin-top:.8rem"></div>
+
+          <!-- Pairing code output box -->
           <div class="pairing-box" id="pairingBox" style="display:none">
+            <div id="pairingTargetPhone" style="font-size:.75rem;color:var(--accent2);margin-bottom:.4rem;letter-spacing:.05em">
+              Target Phone: ...
+            </div>
             <div id="pairingStatusHeader" style="font-size:.72rem;color:var(--accent);margin-bottom:.6rem;letter-spacing:.08em">
               [!] ENTER CODE IN WHATSAPP → LINKED_DEVICES
             </div>
@@ -201,6 +208,7 @@
             <div style="display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;margin:.4rem 0">
               <div class="pairing-code" id="pairingCodeDisplay">----</div>
               <button class="btn btn-outline btn-sm" id="copyCodeBtn" onclick="copyPairingCode()">📋 COPY</button>
+              <button class="btn btn-outline btn-sm" onclick="pairWhatsApp()">↻ NEW CODE</button>
             </div>
 
             <!-- Optional QR Code Display -->
@@ -210,12 +218,12 @@
             </div>
 
             <div class="pairing-hint" style="text-align:left;background:#020910;padding:.8rem;border-radius:4px;border:1px solid var(--border2);margin-top:.8rem">
-              <strong style="color:var(--accent2)">Steps to link on your phone:</strong><br>
+              <strong style="color:var(--accent2)">Quick Steps to link:</strong><br>
               1. Open WhatsApp on your phone<br>
-              2. Go to <strong>Settings</strong> (or 3 dots) &gt; <strong>Linked Devices</strong><br>
+              2. Go to <strong>Settings</strong> &gt; <strong>Linked Devices</strong><br>
               3. Tap <strong>Link a Device</strong> &gt; <strong>Link with phone number instead</strong><br>
               4. Enter the 8-digit code shown above.<br>
-              <span style="color:var(--yellow);font-size:.7rem">⚠️ If you get "couldn't link", click ↻ RESET_SESSION above and double check your phone number.</span>
+              <span style="color:var(--yellow);font-size:.7rem">⚠️ If you see "couldn't link", verify the number entered above matches your WhatsApp Profile exactly!</span>
             </div>
           </div>
         </div>
@@ -232,7 +240,7 @@
       <div>
         <div class="panel" style="height:100%">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
-            <div class="panel-title" style="margin:0">CONSOLE_OUTPUT</div>
+            <div class="panel-title" style="margin:0">LIVE_CONSOLE_OUTPUT</div>
             <button class="btn btn-outline" style="padding:.25rem .6rem;font-size:.7rem" onclick="clearConsole()">[ CLR ]</button>
           </div>
           <div class="console" id="consoleOutput">
@@ -312,6 +320,20 @@ function logout() {
   location.reload()
 }
 
+function setSyncStatus(ok) {
+  const b = document.getElementById('syncBadge')
+  if (!b) return
+  if (ok) {
+    b.textContent = '🟢 BACKEND_CONNECTED'
+    b.style.color = '#00ff9f'
+    b.style.borderColor = 'rgba(0,255,159,.25)'
+  } else {
+    b.textContent = '🔴 SERVER_OFFLINE'
+    b.style.color = '#ff9999'
+    b.style.borderColor = 'rgba(255,68,68,.3)'
+  }
+}
+
 function setStatusBadge(status) {
   const b = document.getElementById('statusBadge')
   const map = {
@@ -332,7 +354,7 @@ function setStatusBadge(status) {
 function addLog(msg) {
   const c = document.getElementById('consoleOutput')
   const d = document.createElement('div')
-  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') || msg.includes('READY') ? ' info' : ''))
+  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') || msg.includes('ACTIVE') ? ' info' : ''))
   d.textContent = msg
   c.appendChild(d)
   c.scrollTop = c.scrollHeight
@@ -342,9 +364,16 @@ function clearConsole() { document.getElementById('consoleOutput').innerHTML = '
 
 async function fetchWithAuth(url, opts = {}) {
   opts.headers = { ...(opts.headers || {}), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
-  const r = await fetch(url, opts)
-  if (r.status === 401 || r.status === 403) { logout(); return null }
-  return r
+  try {
+    const r = await fetch(url, opts)
+    setSyncStatus(true)
+    if (r.status === 401) { logout(); return null }
+    return r
+  } catch (err) {
+    setSyncStatus(false)
+    console.error('Network error calling', url, err)
+    return null
+  }
 }
 
 async function refreshStatus() {
@@ -361,13 +390,16 @@ async function refreshStatus() {
   if (data.status === 'connected') {
     document.getElementById('pairingBox').style.display = 'none'
   } else if (data.pairingCode || data.qrCode) {
-    showPairingCode(data.pairingCode, data.qrCode)
+    showPairingCode(data.pairingCode, data.qrCode, data.phoneNumber || data.phone)
   }
 }
 
-function showPairingCode(code, qrUrl) {
+function showPairingCode(code, qrUrl, phone) {
   const pBox = document.getElementById('pairingBox')
   pBox.style.display = 'block'
+  if (phone) {
+    document.getElementById('pairingTargetPhone').textContent = `Target Phone: +${phone}`
+  }
   if (code) {
     document.getElementById('pairingCodeDisplay').textContent = code
     document.getElementById('pairingStatusHeader').textContent = '[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES'
@@ -386,10 +418,13 @@ function copyPairingCode() {
 }
 
 async function pairWhatsApp() {
+  const errEl = document.getElementById('panelError')
+  errEl.style.display = 'none'
+
   const phoneInput = document.getElementById('pairPhoneInput')
   const phone = phoneInput.value.trim().replace(/[^0-9]/g, '')
   if (!phone || phone.length < 8) {
-    return toast('ENTER_VALID_NUMBER (e.g. 237652673304)', 'error')
+    return toast('ENTER_VALID_NUMBER (e.g. 237620323830)', 'error')
   }
 
   const btn = document.getElementById('pairBtn')
@@ -398,6 +433,7 @@ async function pairWhatsApp() {
 
   const pBox = document.getElementById('pairingBox')
   pBox.style.display = 'block'
+  document.getElementById('pairingTargetPhone').textContent = `Requesting code for: +${phone}...`
   document.getElementById('pairingCodeDisplay').textContent = 'REQUESTING...'
   document.getElementById('pairingStatusHeader').textContent = '[⏳] CONNECTING TO WHATSAPP GATEWAY...'
   document.getElementById('qrBox').style.display = 'none'
@@ -407,9 +443,17 @@ async function pairWhatsApp() {
       method: 'POST',
       body: JSON.stringify({ phoneNumber: phone })
     })
-    if (!r) return
+    if (!r) {
+      errEl.textContent = '[!] Cannot connect to server. Check connection.'
+      errEl.style.display = 'block'
+      btn.disabled = false
+      btn.textContent = '⚡ GET PAIRING CODE'
+      return
+    }
     const d = await r.json()
     if (!r.ok) {
+      errEl.textContent = '[!] ' + (d.error || 'Failed to start pairing')
+      errEl.style.display = 'block'
       toast(d.error || 'FAILED_TO_START', 'error')
       btn.disabled = false
       btn.textContent = '⚡ GET PAIRING CODE'
@@ -420,12 +464,12 @@ async function pairWhatsApp() {
     toast('PAIRING_REQUESTED', 'success')
     addLog(`[SYSTEM] Fresh pairing requested for +${phone}...`)
 
-    // Fast poll for pairing code / QR (every 1.5s for up to 30s)
+    // Fast poll for pairing code (every 1.5s for up to 30s)
     if (pollInterval) clearInterval(pollInterval)
     let attempts = 0
     pollInterval = setInterval(async () => {
       attempts++
-      if (attempts > 20) {
+      if (attempts > 25) {
         clearInterval(pollInterval)
         btn.disabled = false
         btn.textContent = '⚡ GET PAIRING CODE'
@@ -437,8 +481,8 @@ async function pairWhatsApp() {
       const pd = await pr.json()
 
       if (pd.pairingCode || pd.qrCode) {
-        showPairingCode(pd.pairingCode, pd.qrCode)
-        if (pd.pairingCode) {
+        showPairingCode(pd.pairingCode, pd.qrCode, phone)
+        if (pd.pairingCode && pd.pairingCode !== 'REQUESTING...') {
           clearInterval(pollInterval)
           btn.disabled = false
           btn.textContent = '⚡ GET PAIRING CODE'
@@ -452,8 +496,13 @@ async function pairWhatsApp() {
         btn.disabled = false
         btn.textContent = '⚡ GET PAIRING CODE'
       }
+
+      // Keep console logs synced
+      loadLogs()
     }, 1500)
   } catch (err) {
+    errEl.textContent = '[!] ' + err.message
+    errEl.style.display = 'block'
     toast(err.message, 'error')
     btn.disabled = false
     btn.textContent = '⚡ GET PAIRING CODE'
@@ -500,9 +549,14 @@ async function loadLogs() {
   const r = await fetchWithAuth('/api/user/logs')
   if (!r) return
   const data = await r.json()
-  clearConsole()
-  if (!data.logs.length) addLog('[SYSTEM] No logs yet — enter your number and click GET PAIRING CODE.')
-  data.logs.forEach(l => addLog(l))
+  if (!data.logs.length) return
+  const c = document.getElementById('consoleOutput')
+  c.innerHTML = data.logs.map(l => {
+    const isErr = l.includes('❌') || l.includes('ERROR')
+    const isOk = l.includes('✅') || l.includes('Connected') || l.includes('ACTIVE') || l.includes('ONLINE')
+    return `<div class="log-entry ${isErr ? 'error' : (isOk ? 'info' : '')}">${l}</div>`
+  }).join('')
+  c.scrollTop = c.scrollHeight
 }
 
 async function initDashboard() {
@@ -521,24 +575,26 @@ async function initDashboard() {
   if (user.botStatus?.status === 'connected') {
     document.getElementById('pairingBox').style.display = 'none'
   } else if (user.botStatus?.pairingCode || user.botStatus?.qrCode) {
-    showPairingCode(user.botStatus.pairingCode, user.botStatus.qrCode)
+    showPairingCode(user.botStatus.pairingCode, user.botStatus.qrCode, user.phoneNumber)
   }
 
   await loadLogs()
 
   // Real-time Socket.IO
   socket = io({ auth: { token } })
+  socket.on('connect', () => setSyncStatus(true))
+  socket.on('disconnect', () => setSyncStatus(false))
   socket.on('bot-log', ({ message }) => addLog(message))
-  socket.on('bot-status', ({ status, pairingCode, qrCode }) => {
+  socket.on('bot-status', ({ status, pairingCode, qrCode, phone }) => {
     setStatusBadge(status)
-    if (pairingCode || qrCode) showPairingCode(pairingCode, qrCode)
+    if (pairingCode || qrCode) showPairingCode(pairingCode, qrCode, phone)
     if (status === 'connected') {
       document.getElementById('pairingBox').style.display = 'none'
       toast('WHATSAPP_LINKED_ONLINE', 'success')
     }
   })
-  socket.on('pairing-code', ({ code }) => {
-    showPairingCode(code)
+  socket.on('pairing-code', ({ code, phone }) => {
+    showPairingCode(code, null, phone)
     toast('PAIRING_CODE_READY', 'success')
   })
   socket.on('qr-code', ({ qr }) => {
@@ -546,7 +602,7 @@ async function initDashboard() {
   })
   socket.on('account-deactivated', () => { toast('ACCOUNT_DEACTIVATED', 'error'); setTimeout(logout, 3000) })
 
-  setInterval(refreshStatus, 20000)
+  setInterval(refreshStatus, 15000)
 }
 
 // Login
