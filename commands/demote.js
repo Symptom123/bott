@@ -12,7 +12,8 @@ async function demoteCommand(sock, chatId, mentionedJids, message) {
 
         // Check admin status first, before any other operations
         try {
-            const adminStatus = await isAdmin(sock, chatId, message.key.participant || message.key.remoteJid);
+            const demoteSenderId = message.key.participantPn || message.key.participant || message.key.remoteJid;
+            const adminStatus = await isAdmin(sock, chatId, demoteSenderId, message);
             
             if (!adminStatus.isBotAdmin) {
                 await sock.sendMessage(chatId, { 

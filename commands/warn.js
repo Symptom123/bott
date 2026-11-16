@@ -34,7 +34,7 @@ async function warnCommand(sock, chatId, senderId, mentionedJids, message) {
 
         // Check admin status first
         try {
-            const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
+            const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId, message);
             
             if (!isBotAdmin) {
                 await sock.sendMessage(chatId, { 

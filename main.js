@@ -152,7 +152,13 @@ async function handleMessages(sock, messageUpdate, printLog) {
         if (!message?.message) return;
 
         chatId = message.key?.remoteJid;
-        const senderId = message.key?.participant || message.key?.remoteJid;
+        // In groups, WhatsApp may use LID format (e.g. 12345@lid) for participant.
+        // participantPn carries the real phone-based JID (e.g. 237xxx@s.whatsapp.net).
+        // We normalize senderId to the phone-based JID so all downstream identity checks
+        // (sudo, ban, admin) and command handlers work correctly.
+        const rawParticipant = message.key?.participant || message.key?.remoteJid;
+        const senderId = message.key?.participantPn || rawParticipant;
+        const senderPhone = senderId; // alias for clarity
 
         // Auto-cache view-once media as soon as it arrives so .vv is instant and never missing keys
         cacheViewOnce(message).catch(() => {});
@@ -172,7 +178,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
 
         const isGroup = chatId?.endsWith('@g.us');
-        const senderIsSudo = (await isSudo(senderId)) || message.key.fromMe;
+        const senderIsSudo = (await isSudo(senderPhone)) || message.key.fromMe;
 
         // Unwrap message layers (ephemeral, viewOnce, etc.)
         let msg = message.message;
@@ -204,7 +210,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return; // Silently ignore messages from non-owners when in private mode
         }
         // Check if user is banned (skip ban check for unban command)
-        if (isBanned(senderId) && !userMessage.startsWith('.unban')) {
+        if (isBanned(senderPhone) && !userMessage.startsWith('.unban')) {
             // Only respond occasionally to avoid spam
             if (Math.random() < 0.1) {
                 await sock.sendMessage(chatId, {
@@ -280,7 +286,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
         // Check admin status only for admin commands in groups
         if (isGroup && isAdminCommand) {
-            const adminStatus = await isAdmin(sock, chatId, senderId, message);
+            const adminStatus = await isAdmin(sock, chatId, senderId, message, senderPhone);
             isSenderAdmin = adminStatus.isSenderAdmin;
             isBotAdmin = adminStatus.isBotAdmin;
 
@@ -643,7 +649,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 if (isGroup) {
                     // Check admin status if not already checked
                     if (!isSenderAdmin) {
-                        const adminStatus = await isAdmin(sock, chatId, senderId);
+                        const adminStatus = await isAdmin(sock, chatId, senderId, message, senderPhone);
                         isSenderAdmin = adminStatus.isSenderAdmin;
                     }
 
@@ -660,7 +666,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 if (isGroup) {
                     // Check admin status if not already checked
                     if (!isSenderAdmin) {
-                        const adminStatus = await isAdmin(sock, chatId, senderId);
+                        const adminStatus = await isAdmin(sock, chatId, senderId, message, senderPhone);
                         isSenderAdmin = adminStatus.isSenderAdmin;
                     }
 
@@ -686,7 +692,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                     return;
                 }
 
-                const adminStatus = await isAdmin(sock, chatId, senderId);
+                const adminStatus = await isAdmin(sock, chatId, senderId, message, senderPhone);
                 isSenderAdmin = adminStatus.isSenderAdmin;
                 isBotAdmin = adminStatus.isBotAdmin;
 
@@ -704,7 +710,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 }
 
                 // Check if sender is admin or bot owner
-                const chatbotAdminStatus = await isAdmin(sock, chatId, senderId);
+                const chatbotAdminStatus = await isAdmin(sock, chatId, senderId, message, senderPhone);
                 if (!chatbotAdminStatus.isSenderAdmin && !message.key.fromMe) {
                     await sock.sendMessage(chatId, { text: '*Only admins or bot owner can use this command*', ...channelInfo }, { quoted: message });
                     return;

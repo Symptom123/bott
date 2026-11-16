@@ -2,7 +2,7 @@ const isAdmin = require('../lib/isAdmin');
 
 async function tagNotAdminCommand(sock, chatId, senderId, message) {
     try {
-        const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
+        const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId, message);
 
         if (!isBotAdmin) {
             await sock.sendMessage(chatId, { text: 'Please make the bot an admin first.' }, { quoted: message });

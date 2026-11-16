@@ -3,7 +3,7 @@ const isAdmin = require('../lib/isAdmin');
 async function muteCommand(sock, chatId, senderId, message, durationInMinutes) {
     
 
-    const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
+    const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId, message);
     if (!isBotAdmin) {
         await sock.sendMessage(chatId, { text: 'Please make the bot an admin first.' }, { quoted: message });
         return;

@@ -4,7 +4,7 @@ async function kickCommand(sock, chatId, senderId, mentionedJids, message) {
     // Check if user is owner
     const isOwner = message.key.fromMe;
     if (!isOwner) {
-        const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId);
+        const { isSenderAdmin, isBotAdmin } = await isAdmin(sock, chatId, senderId, message);
 
         if (!isBotAdmin) {
             await sock.sendMessage(chatId, { text: 'Please make the bot an admin first.' }, { quoted: message });

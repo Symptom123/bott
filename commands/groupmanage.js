@@ -10,7 +10,7 @@ async function ensureGroupAndAdmin(sock, chatId, senderId) {
     }
     // Check admin status of sender and bot
     const isAdmin = require('../lib/isAdmin');
-    const adminStatus = await isAdmin(sock, chatId, senderId);
+    const adminStatus = await isAdmin(sock, chatId, senderId, null);
     if (!adminStatus.isBotAdmin) {
         await sock.sendMessage(chatId, { text: 'Please make the bot an admin first.' });
         return { ok: false };
