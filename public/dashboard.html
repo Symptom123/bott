@@ -37,7 +37,8 @@
   .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red)}
   .btn-danger:hover{background:var(--red);color:#fff}
   .btn-green{background:transparent;border:1px solid var(--accent2);color:var(--accent2)}
-  .btn-green:hover{background:var(--accent2);color:#000}
+  .btn-green:hover{background:var(--accent2);color:#000;box-shadow:0 0 15px var(--accent2)}
+  .btn-sm{padding:.35rem .75rem;font-size:.72rem}
   .alert{padding:.7rem 1rem;border-radius:4px;font-size:.8rem;margin-top:.7rem;display:none;font-family:system-ui}
   .alert-error{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);color:#ff9999}
   .alert-success{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
@@ -64,9 +65,6 @@
   .panel-title{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
   .panel-title::before{content:'[!]';color:var(--accent);font-size:.65rem}
   .stat-val{font-size:1.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-shadow:0 0 10px var(--accent)}
-  .stat-val.green{color:var(--accent2);text-shadow:0 0 10px var(--accent2)}
-  .stat-val.red{color:var(--red)}
-  .stat-val.yellow{color:var(--yellow)}
 
   /* Status badge */
   .status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .8rem;border-radius:4px;font-size:.78rem;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.05em}
@@ -75,12 +73,12 @@
   .status-starting,.status-waiting-pairing,.status-reconnecting{background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.25);color:#ffcc00}
 
   /* Pairing box */
-  .pairing-box{background:#030d16;border:1px dashed var(--accent);border-radius:8px;padding:1.4rem;text-align:center;margin-top:1rem;display:none}
-  .pairing-code{font-size:2rem;font-weight:700;letter-spacing:.4em;color:var(--accent2);text-shadow:0 0 15px var(--accent2);font-family:'Courier New',monospace}
-  .pairing-hint{font-size:.75rem;color:var(--muted);margin-top:.6rem;line-height:1.7}
+  .pairing-box{background:#030d16;border:1px dashed var(--accent);border-radius:8px;padding:1.4rem;text-align:center;margin-top:1.2rem}
+  .pairing-code{font-size:2.2rem;font-weight:700;letter-spacing:.25em;color:var(--accent2);text-shadow:0 0 15px var(--accent2);font-family:'Courier New',monospace;padding:.5rem 1rem}
+  .pairing-hint{font-size:.75rem;color:var(--muted);margin-top:.8rem;line-height:1.7}
 
   /* Console */
-  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:280px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
+  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:340px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
   .console::-webkit-scrollbar{width:4px}
   .console::-webkit-scrollbar-track{background:transparent}
   .console::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
@@ -97,11 +95,11 @@
   .cmd-tag:hover{border-color:var(--accent);box-shadow:0 0 8px var(--glow)}
 
   /* Settings row */
-  .settings-row{display:flex;gap:.8rem;align-items:flex-end}
+  .settings-row{display:flex;gap:.8rem;align-items:stretch}
   .settings-row input{flex:1}
 
   /* Toast */
-  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.3rem;border-radius:6px;font-size:.8rem;font-family:'Courier New',monospace;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;max-width:300px;letter-spacing:.04em}
+  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.3rem;border-radius:6px;font-size:.8rem;font-family:'Courier New',monospace;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;max-width:320px;letter-spacing:.04em}
   #toast.show{opacity:1;transform:translateY(0)}
 
   .admin-link-card{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1.3rem;display:flex;align-items:center;justify-content:space-between;margin-top:1.3rem}
@@ -164,40 +162,50 @@
       </div>
       <div class="panel">
         <div class="panel-title">LINKED_NUMBER</div>
-        <div class="stat-val" id="phoneDisplay" style="font-size:1rem;color:var(--accent2)">NOT_SET</div>
+        <div class="stat-val" id="phoneDisplay" style="font-size:1.1rem;color:var(--accent2)">NOT_LINKED</div>
       </div>
       <div class="panel">
         <div class="panel-title">ACCESS_LEVEL</div>
-        <div class="stat-val" id="roleDisplay" style="font-size:1rem">USER</div>
+        <div class="stat-val" id="roleDisplay" style="font-size:1.1rem">USER</div>
       </div>
     </div>
 
     <div class="grid-2">
-      <!-- Left: Control -->
+      <!-- Left: WhatsApp Pairing Station -->
       <div>
         <div class="panel">
-          <div class="panel-title">BOT_CONTROL_MATRIX</div>
-          <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem">
-            <button class="btn btn-green" onclick="startBot()" id="startBtn">▶ START_BOT</button>
-            <button class="btn btn-danger" onclick="stopBot()" id="stopBtn">⏹ STOP_BOT</button>
-            <button class="btn btn-outline" onclick="refreshStatus()">↻ REFRESH</button>
+          <div class="panel-title">WHATSAPP_PAIRING_STATION</div>
+          <p style="color:var(--muted);font-size:.76rem;margin-bottom:.8rem;line-height:1.5">
+            Enter your WhatsApp number with country code (no + or spaces) to generate your instant 8-digit linking code.
+          </p>
+
+          <div class="settings-row" style="margin-bottom:.9rem">
+            <input type="tel" id="pairPhoneInput" placeholder="e.g. 237620323830">
+            <button class="btn btn-green" id="pairBtn" onclick="pairWhatsApp()">⚡ GET PAIRING CODE</button>
           </div>
 
-          <div class="pairing-box" id="pairingBox">
-            <div style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;letter-spacing:.08em">[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES</div>
-            <div class="pairing-code" id="pairingCodeDisplay">----</div>
-            <div class="pairing-hint">
-              WhatsApp → Settings → Linked Devices<br>→ Link a Device → Link with phone number
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" onclick="stopBot()" id="stopBtn">⏹ STOP_BOT</button>
+            <button class="btn btn-outline btn-sm" onclick="resetSession()" id="resetBtn" title="Clears existing session files so you can pair freshly">↻ RESET_SESSION</button>
+            <button class="btn btn-outline btn-sm" onclick="refreshStatus()">↻ STATUS</button>
+          </div>
+
+          <!-- Pairing code output -->
+          <div class="pairing-box" id="pairingBox" style="display:none">
+            <div id="pairingStatusHeader" style="font-size:.72rem;color:var(--accent);margin-bottom:.6rem;letter-spacing:.08em">
+              [!] ENTER CODE IN WHATSAPP → LINKED_DEVICES
             </div>
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:1.2rem">
-          <div class="panel-title">LINKED_NUMBER_CONFIG</div>
-          <p style="color:var(--muted);font-size:.75rem;margin-bottom:.8rem;font-family:system-ui">WhatsApp number with country code (no + sign)</p>
-          <div class="settings-row">
-            <input type="tel" id="phoneInput" placeholder="237620323830">
-            <button class="btn btn-primary" onclick="savePhone()">[ SAVE ]</button>
+            <div style="display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;margin:.4rem 0">
+              <div class="pairing-code" id="pairingCodeDisplay">----</div>
+              <button class="btn btn-outline btn-sm" id="copyCodeBtn" onclick="copyPairingCode()">📋 COPY</button>
+            </div>
+            <div class="pairing-hint" style="text-align:left;background:#020910;padding:.8rem;border-radius:4px;border:1px solid var(--border2);margin-top:.8rem">
+              <strong style="color:var(--accent2)">How to link on your phone:</strong><br>
+              1. Open WhatsApp on your phone<br>
+              2. Go to <strong>Settings</strong> (or 3 dots) &gt; <strong>Linked Devices</strong><br>
+              3. Tap <strong>Link a Device</strong> &gt; <strong>Link with phone number instead</strong><br>
+              4. Enter the 8-digit code shown above
+            </div>
           </div>
         </div>
 
@@ -209,7 +217,7 @@
         </div>
       </div>
 
-      <!-- Right: Console -->
+      <!-- Right: Real-time Terminal Console -->
       <div>
         <div class="panel" style="height:100%">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
@@ -223,7 +231,7 @@
       </div>
     </div>
 
-    <!-- Commands -->
+    <!-- Commands list -->
     <div class="section-label">── AVAILABLE_COMMANDS ──</div>
     <div class="panel">
       <div class="cmd-grid">
@@ -254,7 +262,7 @@
       </div>
     </div>
 
-    <!-- Admin link -->
+    <!-- Admin link row -->
     <div id="adminLinkRow" style="display:none">
       <div class="admin-link-card">
         <div>
@@ -276,6 +284,7 @@ let token = localStorage.getItem('kb_token')
 let username = localStorage.getItem('kb_user')
 let role = localStorage.getItem('kb_role')
 let socket = null
+let pollInterval = null
 
 function toast(msg, type='info') {
   const t = document.getElementById('toast')
@@ -283,7 +292,7 @@ function toast(msg, type='info') {
   t.style.borderColor = type === 'error' ? '#ff4444' : type === 'success' ? '#00ff9f' : '#0f3248'
   t.style.color = type === 'error' ? '#ff9999' : type === 'success' ? '#00ff9f' : '#e0f0ff'
   t.classList.add('show')
-  setTimeout(() => t.classList.remove('show'), 3000)
+  setTimeout(() => t.classList.remove('show'), 3500)
 }
 
 function logout() {
@@ -295,13 +304,14 @@ function logout() {
 function setStatusBadge(status) {
   const b = document.getElementById('statusBadge')
   const map = {
-    'connected':       ['🟢 ONLINE',            'status-connected'],
-    'starting':        ['🟡 STARTING...',        'status-starting'],
-    'waiting-pairing': ['🟡 AWAITING_PAIR',      'status-waiting-pairing'],
-    'reconnecting':    ['🟡 RECONNECTING...',     'status-reconnecting'],
-    'disconnected':    ['🔴 DISCONNECTED',        'status-disconnected'],
-    'stopped':         ['⚫ OFFLINE',             'status-stopped'],
-    'logged-out':      ['🔴 LOGGED_OUT',          'status-disconnected'],
+    'connected':       ['🟢 ONLINE',             'status-connected'],
+    'starting':        ['🟡 STARTING...',         'status-starting'],
+    'waiting-pairing': ['🟡 AWAITING_PAIR',       'status-waiting-pairing'],
+    'reconnecting':    ['🟡 RECONNECTING...',      'status-reconnecting'],
+    'disconnected':    ['🔴 DISCONNECTED',         'status-disconnected'],
+    'stopped':         ['⚫ OFFLINE',              'status-stopped'],
+    'logged-out':      ['🔴 LOGGED_OUT',           'status-disconnected'],
+    'error':           ['🔴 ERROR',                'status-disconnected'],
   }
   const [text, cls] = map[status] || ['⚫ UNKNOWN', 'status-stopped']
   b.textContent = text
@@ -311,7 +321,7 @@ function setStatusBadge(status) {
 function addLog(msg) {
   const c = document.getElementById('consoleOutput')
   const d = document.createElement('div')
-  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') ? ' info' : ''))
+  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') || msg.includes('ready') ? ' info' : ''))
   d.textContent = msg
   c.appendChild(d)
   c.scrollTop = c.scrollHeight
@@ -331,32 +341,103 @@ async function refreshStatus() {
   if (!r) return
   const data = await r.json()
   setStatusBadge(data.status)
-  if ((data.status === 'waiting-pairing') && data.pairingCode) {
-    document.getElementById('pairingBox').style.display = 'block'
-    document.getElementById('pairingCodeDisplay').textContent = data.pairingCode
-  } else if (data.status === 'connected') {
+  if (data.phoneNumber) {
+    document.getElementById('phoneDisplay').textContent = '+' + data.phoneNumber
+    if (!document.getElementById('pairPhoneInput').value) {
+      document.getElementById('pairPhoneInput').value = data.phoneNumber
+    }
+  }
+  if (data.status === 'connected') {
     document.getElementById('pairingBox').style.display = 'none'
+  } else if (data.pairingCode) {
+    showPairingCode(data.pairingCode)
   }
 }
 
-async function loadLogs() {
-  const r = await fetchWithAuth('/api/user/logs')
-  if (!r) return
-  const data = await r.json()
-  clearConsole()
-  if (!data.logs.length) addLog('[SYSTEM] No logs yet — start your bot.')
-  data.logs.forEach(l => addLog(l))
+function showPairingCode(code) {
+  const pBox = document.getElementById('pairingBox')
+  pBox.style.display = 'block'
+  document.getElementById('pairingCodeDisplay').textContent = code
+  document.getElementById('pairingStatusHeader').textContent = '[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES'
 }
 
-async function startBot() {
-  const btn = document.getElementById('startBtn')
-  btn.disabled = true; btn.textContent = '⏳ INITIALIZING...'
+function copyPairingCode() {
+  const code = document.getElementById('pairingCodeDisplay').textContent.trim()
+  if (!code || code === '----' || code === 'REQUESTING...') return
+  navigator.clipboard.writeText(code)
+  toast('PAIRING_CODE_COPIED', 'success')
+}
+
+async function pairWhatsApp() {
+  const phoneInput = document.getElementById('pairPhoneInput')
+  const phone = phoneInput.value.trim().replace(/[^0-9]/g, '')
+  if (!phone || phone.length < 8) {
+    return toast('ENTER_VALID_NUMBER (e.g. 237620323830)', 'error')
+  }
+
+  const btn = document.getElementById('pairBtn')
+  btn.disabled = true
+  btn.textContent = '⏳ GENERATING...'
+
+  const pBox = document.getElementById('pairingBox')
+  pBox.style.display = 'block'
+  document.getElementById('pairingCodeDisplay').textContent = 'REQUESTING...'
+  document.getElementById('pairingStatusHeader').textContent = '[⏳] CONNECTING TO WHATSAPP GATEWAY...'
+
   try {
-    const r = await fetchWithAuth('/api/user/bot/start', { method: 'POST' })
+    const r = await fetchWithAuth('/api/user/bot/start', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber: phone })
+    })
     if (!r) return
     const d = await r.json()
-    if (!r.ok) toast(d.error, 'error'); else { toast('BOT_STARTING', 'success'); refreshStatus() }
-  } finally { btn.disabled=false; btn.textContent='▶ START_BOT' }
+    if (!r.ok) {
+      toast(d.error || 'FAILED_TO_START', 'error')
+      btn.disabled = false
+      btn.textContent = '⚡ GET PAIRING CODE'
+      return
+    }
+
+    document.getElementById('phoneDisplay').textContent = '+' + phone
+    toast('PAIRING_REQUESTED', 'success')
+    addLog(`[SYSTEM] Requesting pairing code for +${phone}...`)
+
+    // Fast poll for pairing code (every 1.5s for up to 30s)
+    if (pollInterval) clearInterval(pollInterval)
+    let attempts = 0
+    pollInterval = setInterval(async () => {
+      attempts++
+      if (attempts > 20) {
+        clearInterval(pollInterval)
+        btn.disabled = false
+        btn.textContent = '⚡ GET PAIRING CODE'
+        return
+      }
+
+      const pr = await fetchWithAuth('/api/user/bot/pairing-code')
+      if (!pr) return
+      const pd = await pr.json()
+
+      if (pd.pairingCode) {
+        showPairingCode(pd.pairingCode)
+        clearInterval(pollInterval)
+        btn.disabled = false
+        btn.textContent = '⚡ GET PAIRING CODE'
+      }
+
+      if (pd.status === 'connected') {
+        clearInterval(pollInterval)
+        setStatusBadge('connected')
+        document.getElementById('pairingBox').style.display = 'none'
+        btn.disabled = false
+        btn.textContent = '⚡ GET PAIRING CODE'
+      }
+    }, 1500)
+  } catch (err) {
+    toast(err.message, 'error')
+    btn.disabled = false
+    btn.textContent = '⚡ GET PAIRING CODE'
+  }
 }
 
 async function stopBot() {
@@ -367,18 +448,20 @@ async function stopBot() {
     if (!r) return
     const d = await r.json()
     toast(d.message || d.error, r.ok ? 'success' : 'error')
+    document.getElementById('pairingBox').style.display = 'none'
     refreshStatus()
   } finally { btn.disabled=false; btn.textContent='⏹ STOP_BOT' }
 }
 
-async function savePhone() {
-  const phone = document.getElementById('phoneInput').value.trim()
-  if (!phone) return toast('ENTER_PHONE_NUMBER', 'error')
-  const r = await fetchWithAuth('/api/user/update-phone', { method: 'POST', body: JSON.stringify({ phoneNumber: phone }) })
+async function resetSession() {
+  if (!confirm('Reset WhatsApp session? This will wipe temporary session files so you can pair freshly.')) return
+  const r = await fetchWithAuth('/api/user/bot/reset', { method: 'POST' })
   if (!r) return
   const d = await r.json()
-  if (r.ok) { document.getElementById('phoneDisplay').textContent = '+' + d.phoneNumber; toast('NUMBER_SAVED', 'success') }
-  else toast(d.error, 'error')
+  toast(d.message || 'SESSION_RESET', 'success')
+  document.getElementById('pairingBox').style.display = 'none'
+  document.getElementById('pairingCodeDisplay').textContent = '----'
+  refreshStatus()
 }
 
 async function changePwd() {
@@ -392,6 +475,15 @@ async function changePwd() {
   else toast(d.error, 'error')
 }
 
+async function loadLogs() {
+  const r = await fetchWithAuth('/api/user/logs')
+  if (!r) return
+  const data = await r.json()
+  clearConsole()
+  if (!data.logs.length) addLog('[SYSTEM] No logs yet — enter your number and click GET PAIRING CODE.')
+  data.logs.forEach(l => addLog(l))
+}
+
 async function initDashboard() {
   const r = await fetchWithAuth('/api/user/me')
   if (!r) return
@@ -400,34 +492,37 @@ async function initDashboard() {
   document.getElementById('roleDisplay').textContent = user.role === 'superadmin' ? '👑 SUPERADMIN' : '👤 USER'
   if (user.phoneNumber) {
     document.getElementById('phoneDisplay').textContent = '+' + user.phoneNumber
-    document.getElementById('phoneInput').value = user.phoneNumber
+    document.getElementById('pairPhoneInput').value = user.phoneNumber
   }
   if (user.role === 'superadmin') document.getElementById('adminLinkRow').style.display = 'block'
   setStatusBadge(user.botStatus?.status || 'stopped')
-  if (user.botStatus?.pairingCode) {
-    document.getElementById('pairingBox').style.display = 'block'
-    document.getElementById('pairingCodeDisplay').textContent = user.botStatus.pairingCode
+
+  if (user.botStatus?.status === 'connected') {
+    document.getElementById('pairingBox').style.display = 'none'
+  } else if (user.botStatus?.pairingCode) {
+    showPairingCode(user.botStatus.pairingCode)
   }
+
   await loadLogs()
 
+  // Real-time Socket.IO
   socket = io({ auth: { token } })
   socket.on('bot-log', ({ message }) => addLog(message))
   socket.on('bot-status', ({ status, pairingCode }) => {
     setStatusBadge(status)
-    if (pairingCode) {
-      document.getElementById('pairingBox').style.display = 'block'
-      document.getElementById('pairingCodeDisplay').textContent = pairingCode
+    if (pairingCode) showPairingCode(pairingCode)
+    if (status === 'connected') {
+      document.getElementById('pairingBox').style.display = 'none'
+      toast('WHATSAPP_LINKED_ONLINE', 'success')
     }
-    if (status === 'connected') document.getElementById('pairingBox').style.display = 'none'
   })
   socket.on('pairing-code', ({ code }) => {
-    document.getElementById('pairingBox').style.display = 'block'
-    document.getElementById('pairingCodeDisplay').textContent = code
+    showPairingCode(code)
     toast('PAIRING_CODE_READY', 'success')
   })
   socket.on('account-deactivated', () => { toast('ACCOUNT_DEACTIVATED', 'error'); setTimeout(logout, 3000) })
 
-  setInterval(refreshStatus, 30000)
+  setInterval(refreshStatus, 20000)
 }
 
 // Login

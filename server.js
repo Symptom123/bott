@@ -67,7 +67,7 @@ function hashPassword(pw) {
             username: 'admin',
             password: hashPassword('admin123'),
             role: 'superadmin',
-            email: 'admin@Symptom Bot.com',
+            email: 'admin@symptombot.com',
             active: true,
             phoneNumber: '',
             createdAt: new Date().toISOString(),
@@ -86,7 +86,9 @@ function authMiddleware(req, res, next) {
     if (!payload) return res.status(401).json({ error: 'Unauthorized' })
     const users = loadUsers()
     const user = users[payload.username]
-    if (!user || !user.active) return res.status(403).json({ error: 'Account inactive or not found' })
+    if (!user || (!user.active && user.role !== 'superadmin')) {
+        return res.status(403).json({ error: 'Account inactive or not found' })
+    }
     req.user = { ...user, username: payload.username }
     next()
 }
@@ -137,7 +139,7 @@ app.post('/api/auth/login', (req, res) => {
     const user = users[username]
     if (!user) return res.status(401).json({ error: 'Invalid credentials' })
     if (user.password !== hashPassword(password)) return res.status(401).json({ error: 'Invalid credentials' })
-    if (!user.active) return res.status(403).json({ error: 'Account not yet activated by admin' })
+    if (!user.active && user.role !== 'superadmin') return res.status(403).json({ error: 'Account not yet activated by admin' })
 
     const token = signToken({ username, role: user.role })
     res.json({ token, username, role: user.role, message: 'Login successful' })
@@ -173,8 +175,10 @@ app.post('/api/user/change-password', authMiddleware, (req, res) => {
 })
 
 app.get('/api/user/status', authMiddleware, (req, res) => {
+    const users = loadUsers()
+    const user = users[req.user.username] || {}
     const status = sessionManager.getStatus(req.user.username)
-    res.json(status)
+    res.json({ ...status, phoneNumber: user.phoneNumber || status.phone })
 })
 
 app.get('/api/user/logs', authMiddleware, (req, res) => {
@@ -185,12 +189,26 @@ app.get('/api/user/logs', authMiddleware, (req, res) => {
 app.post('/api/user/bot/start', authMiddleware, async (req, res) => {
     const users = loadUsers()
     const user = users[req.user.username]
-    if (!user.phoneNumber) return res.status(400).json({ error: 'Set your phone number first' })
-    if (!user.active) return res.status(403).json({ error: 'Account not activated' })
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    const rawPhone = req.body?.phoneNumber || user.phoneNumber
+    const phone = String(rawPhone || '').replace(/[^0-9]/g, '')
+    if (!phone || phone.length < 8) {
+        return res.status(400).json({ error: 'Please enter a valid WhatsApp phone number (with country code, e.g. 237620323830)' })
+    }
+
+    if (user.phoneNumber !== phone) {
+        user.phoneNumber = phone
+        saveUsers(users)
+    }
+
+    if (!user.active && user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'Account not yet activated by admin' })
+    }
 
     try {
-        const result = await sessionManager.startSession(req.user.username, user.phoneNumber)
-        res.json(result)
+        const result = await sessionManager.startSession(req.user.username, phone)
+        res.json({ ...result, phoneNumber: phone })
     } catch (err) {
         res.status(500).json({ error: err.message })
     }
@@ -205,9 +223,19 @@ app.post('/api/user/bot/stop', authMiddleware, async (req, res) => {
     }
 })
 
+app.post('/api/user/bot/reset', authMiddleware, async (req, res) => {
+    try {
+        const result = await sessionManager.resetSession(req.user.username)
+        res.json(result)
+    } catch (err) {
+        res.status(500).json({ error: err.message })
+    }
+})
+
 app.get('/api/user/bot/pairing-code', authMiddleware, (req, res) => {
     const code = sessionManager.getPairingCode(req.user.username)
-    res.json({ pairingCode: code })
+    const status = sessionManager.getStatus(req.user.username)
+    res.json({ pairingCode: code, status: status.status })
 })
 
 // ─── Admin routes ─────────────────────────────────────────────────────────────
