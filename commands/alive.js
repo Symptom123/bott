@@ -25,7 +25,11 @@ async function aliveCommand(sock, chatId, message) {
 > CORE MODULES ACTIVE — AWAITING COMMAND INPUT
 \`\`\``;
 
-        await sock.sendMessage(chatId, { text: msg }, { quoted: message });
+        try {
+            await sock.sendMessage(chatId, { text: msg }, { quoted: message });
+        } catch (_) {
+            await sock.sendMessage(chatId, { text: msg });
+        }
     } catch (error) {
         console.error('Error in alive command:', error);
         await sock.sendMessage(chatId, { text: '```\n[!] SYMPTOM_BOT :: ONLINE\n```' }, { quoted: message });

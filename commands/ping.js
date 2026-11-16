@@ -14,7 +14,11 @@ function formatTime(seconds) {
 async function pingCommand(sock, chatId, message) {
     try {
         const start = Date.now();
-        await sock.sendMessage(chatId, { text: '```\n[■■■■■■■■■■■■■■■■■■■■] PINGING...\n```' }, { quoted: message });
+        try {
+            await sock.sendMessage(chatId, { text: '```\n[■■■■■■■■■■■■■■■■■■■■] PINGING...\n```' }, { quoted: message });
+        } catch (_) {
+            await sock.sendMessage(chatId, { text: '```\n[■■■■■■■■■■■■■■■■■■■■] PINGING...\n```' });
+        }
         const ping = Math.round((Date.now() - start) / 2);
         const uptime = formatTime(process.uptime());
         const memUsed = Math.round(process.memoryUsage().rss / 1024 / 1024);
@@ -39,7 +43,11 @@ async function pingCommand(sock, chatId, message) {
 [!] SYMPTOM_BOT :: ALL SYSTEMS NOMINAL
 \`\`\``;
 
-        await sock.sendMessage(chatId, { text: botInfo }, { quoted: message });
+        try {
+            await sock.sendMessage(chatId, { text: botInfo }, { quoted: message });
+        } catch (_) {
+            await sock.sendMessage(chatId, { text: botInfo });
+        }
     } catch (error) {
         console.error('Error in ping command:', error);
         await sock.sendMessage(chatId, { text: '```\n❌ PING FAILED — RETRY\n```' });

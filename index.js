@@ -183,6 +183,19 @@ async function startXeonBotInc() {
             }
             return result
         } catch (err) {
+            // Fallback: If sending with quoted message failed in groups, retry without quote
+            if (args[2]?.quoted) {
+                try {
+                    const { quoted, ...cleanOptions } = args[2] || {}
+                    const result = await rawSendMessage(args[0], args[1], cleanOptions)
+                    if (result?.key?.remoteJid && store?.saveMessage) {
+                        store.saveMessage(result.key.remoteJid, result)
+                    }
+                    return result
+                } catch (retryErr) {
+                    console.error('[index] Send retry without quote failed:', retryErr.message)
+                }
+            }
             const msg = String(err?.message || err)
             if (msg.includes('Connection Closed') || msg.includes('connection')) {
                 // Expected during reconnect - don't throw

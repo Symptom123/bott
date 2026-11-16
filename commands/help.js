@@ -139,16 +139,21 @@ async function helpCommand(sock, chatId, message) {
         const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
         if (fs.existsSync(imagePath)) {
             const imageBuffer = fs.readFileSync(imagePath);
-            await sock.sendMessage(chatId, {
-                image: imageBuffer,
-                caption: helpMessage
-            }, { quoted: message });
+            try {
+                await sock.sendMessage(chatId, { image: imageBuffer, caption: helpMessage }, { quoted: message });
+            } catch (_) {
+                await sock.sendMessage(chatId, { image: imageBuffer, caption: helpMessage });
+            }
         } else {
-            await sock.sendMessage(chatId, { text: helpMessage }, { quoted: message });
+            try {
+                await sock.sendMessage(chatId, { text: helpMessage }, { quoted: message });
+            } catch (_) {
+                await sock.sendMessage(chatId, { text: helpMessage });
+            }
         }
     } catch (error) {
         console.error('Error in help command:', error);
-        await sock.sendMessage(chatId, { text: helpMessage }, { quoted: message });
+        await sock.sendMessage(chatId, { text: helpMessage });
     }
 }
 

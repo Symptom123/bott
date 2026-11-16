@@ -205,9 +205,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
         const userMessage = rawText.toLowerCase().replace(/\.\s+/g, '.').trim();
 
-        // Only log command usage
+        // Log command detection with full routing context
         if (userMessage.startsWith('.')) {
-            console.log(`📝 Command used in ${isGroup ? 'group' : 'private'}: ${userMessage}`);
+            console.log(`[CMD] Detected: "${userMessage}" | chat: ${chatId} | isGroup: ${isGroup} | sender: ${senderId} | fromMe: ${message.key?.fromMe}`);
         }
 
         // Enforce private mode BEFORE any replies (except owner/sudo)
@@ -1152,13 +1152,16 @@ async function handleMessages(sock, messageUpdate, printLog) {
             await addCommandReaction(sock, message);
         }
     } catch (error) {
-        console.error('❌ Error in message handler:', error.message);
+        console.error('❌ Error in message handler:', error);
         // Only try to send error message if we have a valid chatId
         if (chatId) {
-            await sock.sendMessage(chatId, {
-                text: '❌ Failed to process command!',
-                ...channelInfo
-            });
+            try {
+                await sock.sendMessage(chatId, {
+                    text: `❌ Command Error: ${error.message || 'Unknown error'}`
+                });
+            } catch (sendErr) {
+                console.error('❌ Could not send error notification to chat:', sendErr.message);
+            }
         }
     }
 }
