@@ -194,7 +194,7 @@ app.post('/api/user/bot/start', authMiddleware, async (req, res) => {
     const rawPhone = req.body?.phoneNumber || user.phoneNumber
     const phone = String(rawPhone || '').replace(/[^0-9]/g, '')
     if (!phone || phone.length < 8) {
-        return res.status(400).json({ error: 'Please enter a valid WhatsApp phone number (with country code, e.g. 237620323830)' })
+        return res.status(400).json({ error: 'Please enter a valid WhatsApp phone number (with country code, e.g. 237652673304)' })
     }
 
     if (user.phoneNumber !== phone) {
@@ -234,8 +234,9 @@ app.post('/api/user/bot/reset', authMiddleware, async (req, res) => {
 
 app.get('/api/user/bot/pairing-code', authMiddleware, (req, res) => {
     const code = sessionManager.getPairingCode(req.user.username)
+    const qr = sessionManager.getQRCode(req.user.username)
     const status = sessionManager.getStatus(req.user.username)
-    res.json({ pairingCode: code, status: status.status })
+    res.json({ pairingCode: code, qrCode: qr, status: status.status })
 })
 
 // ─── Admin routes ─────────────────────────────────────────────────────────────

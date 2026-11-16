@@ -78,7 +78,7 @@
   .pairing-hint{font-size:.75rem;color:var(--muted);margin-top:.8rem;line-height:1.7}
 
   /* Console */
-  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:340px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
+  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:360px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
   .console::-webkit-scrollbar{width:4px}
   .console::-webkit-scrollbar-track{background:transparent}
   .console::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
@@ -176,17 +176,18 @@
         <div class="panel">
           <div class="panel-title">WHATSAPP_PAIRING_STATION</div>
           <p style="color:var(--muted);font-size:.76rem;margin-bottom:.8rem;line-height:1.5">
-            Enter your WhatsApp number with country code (no + or spaces) to generate your instant 8-digit linking code.
+            Enter your WhatsApp number with country code (e.g. <strong>237652673304</strong> or <strong>237620323830</strong>).
+            <br><span style="color:var(--yellow)">⚠️ Must match the exact phone number in your WhatsApp profile!</span>
           </p>
 
           <div class="settings-row" style="margin-bottom:.9rem">
-            <input type="tel" id="pairPhoneInput" placeholder="e.g. 237620323830">
+            <input type="tel" id="pairPhoneInput" placeholder="e.g. 237652673304">
             <button class="btn btn-green" id="pairBtn" onclick="pairWhatsApp()">⚡ GET PAIRING CODE</button>
           </div>
 
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <button class="btn btn-danger btn-sm" onclick="stopBot()" id="stopBtn">⏹ STOP_BOT</button>
-            <button class="btn btn-outline btn-sm" onclick="resetSession()" id="resetBtn" title="Clears existing session files so you can pair freshly">↻ RESET_SESSION</button>
+            <button class="btn btn-outline btn-sm" onclick="resetSession()" id="resetBtn" title="Wipes old session keys to start fresh pairing">↻ RESET_SESSION</button>
             <button class="btn btn-outline btn-sm" onclick="refreshStatus()">↻ STATUS</button>
           </div>
 
@@ -195,16 +196,26 @@
             <div id="pairingStatusHeader" style="font-size:.72rem;color:var(--accent);margin-bottom:.6rem;letter-spacing:.08em">
               [!] ENTER CODE IN WHATSAPP → LINKED_DEVICES
             </div>
+
+            <!-- Code display -->
             <div style="display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;margin:.4rem 0">
               <div class="pairing-code" id="pairingCodeDisplay">----</div>
               <button class="btn btn-outline btn-sm" id="copyCodeBtn" onclick="copyPairingCode()">📋 COPY</button>
             </div>
+
+            <!-- Optional QR Code Display -->
+            <div id="qrBox" style="display:none;margin:1rem auto;text-align:center">
+              <div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">[ OR SCAN QR CODE WITH WHATSAPP CAMERA ]</div>
+              <img id="qrImage" src="" alt="Scan QR" style="width:190px;height:190px;border:2px solid var(--accent);border-radius:8px;background:#fff;padding:6px">
+            </div>
+
             <div class="pairing-hint" style="text-align:left;background:#020910;padding:.8rem;border-radius:4px;border:1px solid var(--border2);margin-top:.8rem">
-              <strong style="color:var(--accent2)">How to link on your phone:</strong><br>
+              <strong style="color:var(--accent2)">Steps to link on your phone:</strong><br>
               1. Open WhatsApp on your phone<br>
               2. Go to <strong>Settings</strong> (or 3 dots) &gt; <strong>Linked Devices</strong><br>
               3. Tap <strong>Link a Device</strong> &gt; <strong>Link with phone number instead</strong><br>
-              4. Enter the 8-digit code shown above
+              4. Enter the 8-digit code shown above.<br>
+              <span style="color:var(--yellow);font-size:.7rem">⚠️ If you get "couldn't link", click ↻ RESET_SESSION above and double check your phone number.</span>
             </div>
           </div>
         </div>
@@ -321,7 +332,7 @@ function setStatusBadge(status) {
 function addLog(msg) {
   const c = document.getElementById('consoleOutput')
   const d = document.createElement('div')
-  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') || msg.includes('ready') ? ' info' : ''))
+  d.className = 'log-entry' + (msg.includes('❌') || msg.includes('ERROR') ? ' error' : (msg.includes('✅') || msg.includes('Connected') || msg.includes('ONLINE') || msg.includes('READY') ? ' info' : ''))
   d.textContent = msg
   c.appendChild(d)
   c.scrollTop = c.scrollHeight
@@ -349,16 +360,22 @@ async function refreshStatus() {
   }
   if (data.status === 'connected') {
     document.getElementById('pairingBox').style.display = 'none'
-  } else if (data.pairingCode) {
-    showPairingCode(data.pairingCode)
+  } else if (data.pairingCode || data.qrCode) {
+    showPairingCode(data.pairingCode, data.qrCode)
   }
 }
 
-function showPairingCode(code) {
+function showPairingCode(code, qrUrl) {
   const pBox = document.getElementById('pairingBox')
   pBox.style.display = 'block'
-  document.getElementById('pairingCodeDisplay').textContent = code
-  document.getElementById('pairingStatusHeader').textContent = '[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES'
+  if (code) {
+    document.getElementById('pairingCodeDisplay').textContent = code
+    document.getElementById('pairingStatusHeader').textContent = '[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES'
+  }
+  if (qrUrl) {
+    document.getElementById('qrBox').style.display = 'block'
+    document.getElementById('qrImage').src = qrUrl
+  }
 }
 
 function copyPairingCode() {
@@ -372,7 +389,7 @@ async function pairWhatsApp() {
   const phoneInput = document.getElementById('pairPhoneInput')
   const phone = phoneInput.value.trim().replace(/[^0-9]/g, '')
   if (!phone || phone.length < 8) {
-    return toast('ENTER_VALID_NUMBER (e.g. 237620323830)', 'error')
+    return toast('ENTER_VALID_NUMBER (e.g. 237652673304)', 'error')
   }
 
   const btn = document.getElementById('pairBtn')
@@ -383,6 +400,7 @@ async function pairWhatsApp() {
   pBox.style.display = 'block'
   document.getElementById('pairingCodeDisplay').textContent = 'REQUESTING...'
   document.getElementById('pairingStatusHeader').textContent = '[⏳] CONNECTING TO WHATSAPP GATEWAY...'
+  document.getElementById('qrBox').style.display = 'none'
 
   try {
     const r = await fetchWithAuth('/api/user/bot/start', {
@@ -400,9 +418,9 @@ async function pairWhatsApp() {
 
     document.getElementById('phoneDisplay').textContent = '+' + phone
     toast('PAIRING_REQUESTED', 'success')
-    addLog(`[SYSTEM] Requesting pairing code for +${phone}...`)
+    addLog(`[SYSTEM] Fresh pairing requested for +${phone}...`)
 
-    // Fast poll for pairing code (every 1.5s for up to 30s)
+    // Fast poll for pairing code / QR (every 1.5s for up to 30s)
     if (pollInterval) clearInterval(pollInterval)
     let attempts = 0
     pollInterval = setInterval(async () => {
@@ -418,11 +436,13 @@ async function pairWhatsApp() {
       if (!pr) return
       const pd = await pr.json()
 
-      if (pd.pairingCode) {
-        showPairingCode(pd.pairingCode)
-        clearInterval(pollInterval)
-        btn.disabled = false
-        btn.textContent = '⚡ GET PAIRING CODE'
+      if (pd.pairingCode || pd.qrCode) {
+        showPairingCode(pd.pairingCode, pd.qrCode)
+        if (pd.pairingCode) {
+          clearInterval(pollInterval)
+          btn.disabled = false
+          btn.textContent = '⚡ GET PAIRING CODE'
+        }
       }
 
       if (pd.status === 'connected') {
@@ -454,13 +474,14 @@ async function stopBot() {
 }
 
 async function resetSession() {
-  if (!confirm('Reset WhatsApp session? This will wipe temporary session files so you can pair freshly.')) return
+  if (!confirm('Reset WhatsApp session? This will wipe old session keys so you can generate a brand new code.')) return
   const r = await fetchWithAuth('/api/user/bot/reset', { method: 'POST' })
   if (!r) return
   const d = await r.json()
   toast(d.message || 'SESSION_RESET', 'success')
   document.getElementById('pairingBox').style.display = 'none'
   document.getElementById('pairingCodeDisplay').textContent = '----'
+  document.getElementById('qrBox').style.display = 'none'
   refreshStatus()
 }
 
@@ -499,8 +520,8 @@ async function initDashboard() {
 
   if (user.botStatus?.status === 'connected') {
     document.getElementById('pairingBox').style.display = 'none'
-  } else if (user.botStatus?.pairingCode) {
-    showPairingCode(user.botStatus.pairingCode)
+  } else if (user.botStatus?.pairingCode || user.botStatus?.qrCode) {
+    showPairingCode(user.botStatus.pairingCode, user.botStatus.qrCode)
   }
 
   await loadLogs()
@@ -508,9 +529,9 @@ async function initDashboard() {
   // Real-time Socket.IO
   socket = io({ auth: { token } })
   socket.on('bot-log', ({ message }) => addLog(message))
-  socket.on('bot-status', ({ status, pairingCode }) => {
+  socket.on('bot-status', ({ status, pairingCode, qrCode }) => {
     setStatusBadge(status)
-    if (pairingCode) showPairingCode(pairingCode)
+    if (pairingCode || qrCode) showPairingCode(pairingCode, qrCode)
     if (status === 'connected') {
       document.getElementById('pairingBox').style.display = 'none'
       toast('WHATSAPP_LINKED_ONLINE', 'success')
@@ -519,6 +540,9 @@ async function initDashboard() {
   socket.on('pairing-code', ({ code }) => {
     showPairingCode(code)
     toast('PAIRING_CODE_READY', 'success')
+  })
+  socket.on('qr-code', ({ qr }) => {
+    showPairingCode(null, qr)
   })
   socket.on('account-deactivated', () => { toast('ACCOUNT_DEACTIVATED', 'error'); setTimeout(logout, 3000) })
 
