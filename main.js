@@ -152,11 +152,18 @@ async function handleMessages(sock, messageUpdate, printLog) {
         if (!message?.message) return;
 
         chatId = message.key?.remoteJid;
-        // In groups, WhatsApp may use LID format (e.g. 12345@lid) for participant.
-        // participantPn carries the real phone-based JID (e.g. 237xxx@s.whatsapp.net).
-        // We normalize senderId to the phone-based JID so all downstream identity checks
-        // (sudo, ban, admin) and command handlers work correctly.
-        const rawParticipant = message.key?.participant || message.key?.remoteJid;
+        const isGroup = chatId?.endsWith('@g.us');
+
+        // Resolve the bot's own JID (e.g. 237xxx@s.whatsapp.net)
+        const botJid = sock.user?.id ? (sock.user.id.split(':')[0] + '@s.whatsapp.net') : null;
+
+        // In groups, WhatsApp uses LID format for participant.
+        // If fromMe is true in a group, message.key.participant is often undefined,
+        // so we must resolve to botJid, NOT the group remoteJid!
+        const rawParticipant = message.key?.fromMe 
+            ? (botJid || message.key?.remoteJid)
+            : (message.key?.participant || message.key?.remoteJid);
+
         const senderId = message.key?.participantPn || rawParticipant;
         const senderPhone = senderId; // alias for clarity
 
@@ -177,7 +184,6 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return;
         }
 
-        const isGroup = chatId?.endsWith('@g.us');
         const senderIsSudo = (await isSudo(senderPhone)) || message.key.fromMe;
 
         // Unwrap message layers (ephemeral, viewOnce, etc.)

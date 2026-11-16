@@ -120,6 +120,7 @@ async function startXeonBotInc() {
     let { version } = await fetchLatestBaileysVersion()
     const { state, saveCreds } = await useMultiFileAuthState('./session')
     const msgRetryCounterCache = new NodeCache({ stdTTL: 60, checkperiod: 120 })
+    const groupMetadataCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 
     let targetPhoneNumber = settings.ownerNumber || phoneNumber
 
@@ -160,8 +161,9 @@ async function startXeonBotInc() {
             }
             return proto.Message.fromObject({})
         },
+        cachedGroupMetadata: async (jid) => groupMetadataCache.get(jid),
         msgRetryCounterCache,
-        defaultQueryTimeoutMs: undefined,
+        defaultQueryTimeoutMs: 30000,
     })
 
     sock.public = true
@@ -198,6 +200,21 @@ async function startXeonBotInc() {
             return (decode.user && decode.server && decode.user + '@' + decode.server) || jid
         }
         return jid
+    }
+
+    const rawGroupMetadata = sock.groupMetadata.bind(sock)
+    sock.groupMetadata = async (jid) => {
+        const cached = groupMetadataCache.get(jid)
+        if (cached) return cached
+        try {
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('groupMetadata timeout')), 8000))
+            const data = await Promise.race([rawGroupMetadata(jid), timeout])
+            if (data) groupMetadataCache.set(jid, data)
+            return data
+        } catch (err) {
+            if (cached) return cached
+            throw err
+        }
     }
 
     sock.getName = (jid, withoutContact = false) => {
@@ -303,7 +320,16 @@ async function startXeonBotInc() {
 
     // ── Group events ───────────────────────────────────────────────────────────
     sock.ev.on('group-participants.update', async update => {
-        try { await handleGroupParticipantUpdate(sock, update) } catch {}
+        try {
+            if (update.id) groupMetadataCache.del(update.id)
+            await handleGroupParticipantUpdate(sock, update)
+        } catch {}
+    })
+
+    sock.ev.on('groups.update', updates => {
+        for (const u of updates) {
+            if (u.id) groupMetadataCache.del(u.id)
+        }
     })
 
     // ── Contact sync ───────────────────────────────────────────────────────────
