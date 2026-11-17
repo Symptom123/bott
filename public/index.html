@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Symptom Bot — WhatsApp Bot Platform</title>
 <link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #030a10;
@@ -14,49 +17,38 @@
     --border2: #0f3248;
     --accent: #00d4ff;
     --accent2: #00ff9f;
+    --accent3: #7b61ff;
     --glow: rgba(0,212,255,0.15);
     --glow2: rgba(0,255,159,0.1);
     --text: #e0f0ff;
-    --muted: #4a7a9b;
+    --muted: #5a8aaa;
     --dim: #1a3a50;
+    --red: #ff4444;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Courier New', 'Courier', monospace;
+    font-family: 'Inter', system-ui, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    line-height: 1.6;
   }
 
-  /* ── Scanline overlay ── */
+  /* ── Grid + Scanline ── */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.07) 2px,
-      rgba(0,0,0,0.07) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+    pointer-events: none; z-index: 9999;
   }
-
-  /* ── Grid background ── */
   body::after {
     content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none; z-index: 0;
   }
 
   /* ── NAV ── */
@@ -64,330 +56,279 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 3rem;
-    border-bottom: 1px solid var(--border2);
-    background: rgba(3,10,16,0.95);
-    backdrop-filter: blur(20px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 0 30px rgba(0,212,255,0.08);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid rgba(0,212,255,0.12);
+    background: rgba(3,10,16,0.96);
+    backdrop-filter: blur(24px);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 40px rgba(0,212,255,0.06);
   }
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: .8rem;
-  }
+  .nav-logo { display: flex; align-items: center; gap: .9rem; text-decoration: none; }
   .nav-logo img {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid var(--accent);
-    box-shadow: 0 0 12px var(--accent);
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 14px var(--accent);
     object-fit: cover;
   }
-  .nav-logo-text {
-    font-size: 1.1rem;
-    font-weight: 700;
+  .nav-logo-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem; font-weight: 700;
     color: var(--accent);
-    letter-spacing: .15em;
-    text-shadow: 0 0 10px var(--accent);
+    letter-spacing: .12em;
+    text-shadow: 0 0 12px rgba(0,212,255,0.4);
   }
-  .nav-logo-text span { color: var(--accent2); }
+  .nav-logo-name span { color: var(--accent2); }
   .nav-status {
-    font-size: .72rem;
-    color: var(--accent2);
-    letter-spacing: .1em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; color: var(--accent2);
+    letter-spacing: .1em; margin-top: 1px;
   }
-  .nav-links { display: flex; gap: .8rem; align-items: center; }
+  .nav-links { display: flex; gap: .6rem; align-items: center; }
+
   .btn {
-    padding: .55rem 1.3rem;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    font-size: .82rem;
-    font-weight: 700;
-    letter-spacing: .08em;
-    transition: all .2s;
-    text-transform: uppercase;
+    padding: .55rem 1.2rem;
+    border-radius: 6px; border: none; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem; font-weight: 600;
+    letter-spacing: .07em; text-transform: uppercase;
+    transition: all .2s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: .4rem;
   }
   .btn-outline {
     background: transparent;
-    border: 1px solid var(--border2);
+    border: 1px solid rgba(0,212,255,0.3);
     color: var(--muted);
   }
-  .btn-outline:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 12px var(--glow);
-  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 14px var(--glow); }
   .btn-primary {
     background: transparent;
     border: 1px solid var(--accent);
     color: var(--accent);
-    box-shadow: 0 0 12px var(--glow);
+    box-shadow: 0 0 14px var(--glow);
   }
-  .btn-primary:hover {
-    background: var(--accent);
-    color: #000;
-    box-shadow: 0 0 20px var(--accent);
+  .btn-primary:hover { background: var(--accent); color: #000; box-shadow: 0 0 24px var(--accent); }
+  .btn-lg { padding: .8rem 2rem; font-size: .88rem; border-radius: 8px; }
+  .btn-green {
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
   }
+  .btn-green:hover { background: var(--accent2); color: #000; box-shadow: 0 0 20px var(--accent2); }
 
   /* ── HERO ── */
   .hero {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 5rem 2rem 4rem;
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 4rem 1.5rem 3rem;
     text-align: center;
   }
   .hero-banner {
-    width: 100%;
-    max-width: 900px;
-    border-radius: 12px;
-    border: 1px solid var(--border2);
-    box-shadow: 0 0 60px rgba(0,212,255,0.15), 0 0 120px rgba(0,255,159,0.05);
+    width: 100%; max-width: 860px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,212,255,0.18);
+    box-shadow: 0 0 60px rgba(0,212,255,0.12), 0 0 120px rgba(0,255,159,0.04);
     margin-bottom: 3rem;
-    position: relative;
     overflow: hidden;
+    position: relative;
   }
-  .hero-banner img {
-    width: 100%;
-    display: block;
-    opacity: 0.92;
-  }
+  .hero-banner img { width: 100%; display: block; opacity: .88; }
   .hero-banner::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 60%, var(--bg) 100%);
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, var(--bg) 100%);
   }
 
+  /* Terminal */
   .terminal-box {
     background: rgba(5,15,24,0.9);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 1.5rem 2rem;
-    max-width: 680px;
-    width: 100%;
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 12px;
+    padding: 1.4rem 1.8rem;
+    max-width: 640px; width: 100%;
     text-align: left;
-    box-shadow: 0 0 30px var(--glow);
-    margin-bottom: 2.5rem;
+    box-shadow: 0 0 32px var(--glow);
+    margin-bottom: 2.8rem;
     position: relative;
   }
-  .terminal-box::before {
-    content: '● ● ●';
-    position: absolute;
-    top: .7rem;
-    left: 1rem;
-    font-size: .65rem;
-    color: var(--dim);
-    letter-spacing: .4em;
+  .terminal-dots {
+    display: flex; gap: .4rem; margin-bottom: .9rem;
   }
+  .terminal-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .terminal-dots span:nth-child(1) { background: #ff5f57; }
+  .terminal-dots span:nth-child(2) { background: #febc2e; }
+  .terminal-dots span:nth-child(3) { background: #28c840; }
   .terminal-line {
-    font-size: .85rem;
-    line-height: 2;
-    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .82rem; line-height: 1.9; color: var(--muted);
   }
   .terminal-line .prompt { color: var(--accent2); }
   .terminal-line .val { color: var(--accent); }
   .terminal-line .ok { color: #00ff9f; }
-  .terminal-line .label { color: #4a7a9b; }
+  .terminal-line .label { color: var(--muted); opacity: .7; }
   .blink { animation: blink 1s step-end infinite; }
   @keyframes blink { 50% { opacity: 0; } }
 
   h1 {
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 700;
-    letter-spacing: .1em;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900; letter-spacing: .05em;
+    line-height: 1.25; margin-bottom: 1.2rem;
     color: var(--text);
   }
-  h1 .hi { color: var(--accent); text-shadow: 0 0 20px var(--accent); }
-  h1 .h2 { color: var(--accent2); text-shadow: 0 0 20px var(--accent2); }
+  h1 .hi { color: var(--accent); text-shadow: 0 0 24px rgba(0,212,255,0.6); }
+  h1 .h2 { color: var(--accent2); text-shadow: 0 0 24px rgba(0,255,159,0.6); }
 
   .hero-sub {
-    font-size: .9rem;
-    color: var(--muted);
-    margin-bottom: 2.5rem;
-    max-width: 500px;
-    line-height: 1.8;
+    font-family: 'Inter', sans-serif;
+    font-size: .95rem; font-weight: 300;
+    color: var(--muted); margin-bottom: 2.5rem;
+    max-width: 480px; line-height: 1.9;
   }
-  .hero-btns {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .btn-lg { padding: .8rem 2rem; font-size: .9rem; }
+  .hero-btns { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
 
   /* ── DIVIDER ── */
   .divider {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    max-width: 900px;
-    margin: 3rem auto;
-    padding: 0 2rem;
-    color: var(--dim);
-    font-size: .75rem;
-    letter-spacing: .2em;
+    display: flex; align-items: center; gap: 1rem;
+    max-width: 900px; margin: 3rem auto;
+    padding: 0 1.5rem; color: var(--dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .2em;
   }
   .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border2);
+    content: ''; flex: 1; height: 1px; background: var(--border2);
   }
 
   /* ── STATS ── */
   .stats {
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
-    padding: 2rem;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 1;
+    display: flex; justify-content: center;
+    gap: 2.5rem; padding: 1.5rem 1.5rem 2rem;
+    flex-wrap: wrap; position: relative; z-index: 1;
   }
   .stat { text-align: center; }
   .stat-num {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--accent);
-    text-shadow: 0 0 15px var(--accent);
-    letter-spacing: .1em;
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem; font-weight: 700;
+    color: var(--accent); text-shadow: 0 0 16px rgba(0,212,255,0.5);
+    letter-spacing: .08em;
   }
-  .stat-num.green { color: var(--accent2); text-shadow: 0 0 15px var(--accent2); }
+  .stat-num.green { color: var(--accent2); text-shadow: 0 0 16px rgba(0,255,159,0.5); }
   .stat-label {
-    color: var(--muted);
-    font-size: .72rem;
-    margin-top: .3rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted); font-size: .68rem;
+    margin-top: .4rem; letter-spacing: .12em; text-transform: uppercase;
   }
 
   /* ── FEATURES ── */
   .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.2rem;
-    max-width: 1100px;
-    margin: 1rem auto 3rem;
-    padding: 0 2rem;
-    position: relative;
-    z-index: 1;
+    gap: 1rem; max-width: 1080px;
+    margin: 1rem auto 3rem; padding: 0 1.5rem;
+    position: relative; z-index: 1;
   }
   .feature-card {
     background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 1.6rem;
-    transition: all .2s;
-    position: relative;
-    overflow: hidden;
+    border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 12px; padding: 1.6rem;
+    transition: all .25s; position: relative; overflow: hidden;
   }
   .feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    right: 0; height: 1px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0;
-    transition: opacity .3s;
+    opacity: 0; transition: opacity .3s;
   }
-  .feature-card:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+  .feature-card:hover { border-color: rgba(0,212,255,0.35); box-shadow: 0 0 24px var(--glow); transform: translateY(-2px); }
   .feature-card:hover::before { opacity: 1; }
-  .feature-icon { font-size: 1.8rem; margin-bottom: .8rem; }
-  .feature-card h3 { font-size: .9rem; margin-bottom: .5rem; color: var(--accent); letter-spacing: .08em; }
-  .feature-card p { color: var(--muted); font-size: .8rem; line-height: 1.7; font-family: system-ui, sans-serif; }
+  .feature-icon { font-size: 2rem; margin-bottom: .9rem; }
+  .feature-card h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .82rem; margin-bottom: .6rem;
+    color: var(--accent); letter-spacing: .1em; text-transform: uppercase;
+  }
+  .feature-card p { color: var(--muted); font-size: .84rem; line-height: 1.75; font-weight: 300; }
 
   /* ── LOGO SHOWCASE ── */
   .logo-showcase {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3rem;
-    padding: 3rem 2rem;
-    position: relative;
-    z-index: 1;
-    flex-wrap: wrap;
+    display: flex; align-items: center; justify-content: center;
+    gap: 2rem; padding: 2.5rem 1.5rem;
+    position: relative; z-index: 1; flex-wrap: wrap;
   }
   .logo-showcase img {
-    height: 160px;
-    border-radius: 12px;
-    border: 1px solid var(--border2);
-    box-shadow: 0 0 30px var(--glow);
-    transition: all .3s;
+    height: 140px; border-radius: 12px;
+    border: 1px solid rgba(0,212,255,0.15);
+    box-shadow: 0 0 28px var(--glow);
+    transition: all .3s; object-fit: cover;
   }
-  .logo-showcase img:hover {
-    box-shadow: 0 0 50px rgba(0,212,255,0.3);
-    transform: scale(1.03);
-  }
+  .logo-showcase img:hover { box-shadow: 0 0 48px rgba(0,212,255,0.3); transform: scale(1.04); }
 
   /* ── FOOTER ── */
   footer {
-    text-align: center;
-    padding: 2.5rem;
+    text-align: center; padding: 2.5rem 1.5rem;
     border-top: 1px solid var(--border2);
-    color: var(--muted);
-    font-size: .78rem;
-    position: relative;
-    z-index: 1;
+    color: var(--muted); font-size: .78rem;
+    position: relative; z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
     letter-spacing: .05em;
   }
   footer strong { color: var(--accent); }
 
+  /* ── MOBILE ── */
   @media (max-width: 600px) {
-    nav { padding: 1rem 1.2rem; }
-    .hero { padding: 3rem 1rem 2rem; }
-    .stats { gap: 1.5rem; }
-    .divider { margin: 2rem 1rem; }
+    nav { padding: .9rem 1rem; }
+    .nav-logo-name { font-size: .85rem; }
+    .hero { padding: 2.5rem 1rem 2rem; }
+    .terminal-box { padding: 1rem 1.2rem; }
+    .terminal-line { font-size: .75rem; }
+    .stats { gap: 1.4rem; padding: 1rem; }
+    .stat-num { font-size: 1.6rem; }
+    .divider { margin: 2rem .8rem; }
+    .hero-btns { flex-direction: column; align-items: center; width: 100%; }
+    .btn-lg { width: 100%; justify-content: center; }
+    .features { padding: 0 1rem; }
+    .logo-showcase img { height: 100px; }
   }
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo">
+  <a class="nav-logo" href="/">
     <img src="/logo.jpg" alt="Symptom Bot Logo">
     <div>
-      <div class="nav-logo-text">SYMPTOM<span>_BOT</span></div>
+      <div class="nav-logo-name">SYMPTOM<span>_BOT</span></div>
       <div class="nav-status">● NODE_CONNECTED :: v4.02</div>
     </div>
-  </div>
+  </a>
   <div class="nav-links">
-    <a href="/register"><button class="btn btn-outline">[ REGISTER ]</button></a>
-    <a href="/dashboard"><button class="btn btn-primary">[ ACCESS_PORTAL ]</button></a>
+    <a href="/register"><button class="btn btn-outline">Register</button></a>
+    <a href="/dashboard"><button class="btn btn-primary">⚡ Launch</button></a>
   </div>
 </nav>
 
-<!-- Hero Banner -->
+<!-- Hero -->
 <section class="hero">
   <div class="hero-banner">
     <img src="/banner.jpg" alt="Symptom Bot Control Room">
   </div>
 
-  <!-- Terminal status box -->
   <div class="terminal-box">
-    <div style="height:.8rem"></div>
+    <div class="terminal-dots">
+      <span></span><span></span><span></span>
+    </div>
     <div class="terminal-line"><span class="prompt">[!]</span> <span class="label">STATUS   ::</span> <span class="ok">ONLINE (NODE_CONNECTED)</span></div>
     <div class="terminal-line"><span class="prompt">[!]</span> <span class="label">SYSTEM   ::</span> <span class="val">SYMPTOM_BOT MULTI-SESSION CONTROL MATRIX</span></div>
     <div class="terminal-line"><span class="prompt">[!]</span> <span class="label">VERSION  ::</span> <span class="val">v4.02</span></div>
     <div class="terminal-line"><span class="prompt">[!]</span> <span class="label">FIREWALL ::</span> <span class="ok">ENFORCED 🟩</span></div>
     <div class="terminal-line"><span class="prompt">[!]</span> <span class="label">MODULES  ::</span> <span class="val">50+ COMMANDS LOADED</span></div>
-    <div class="terminal-line" style="margin-top:.5rem"><span class="prompt">&gt;</span> <span style="color:var(--text)">REGISTER A NODE TO ENGAGE CONTROL MATRIX</span> <span class="blink" style="color:var(--accent)">█</span></div>
+    <div class="terminal-line" style="margin-top:.4rem"><span class="prompt">›</span> <span style="color:var(--text)">REGISTER A NODE TO ENGAGE CONTROL MATRIX</span> <span class="blink" style="color:var(--accent)">█</span></div>
   </div>
 
   <h1>Deploy Your<br><span class="hi">SYMPTOM</span><span class="h2">_BOT</span><br>Instance Now</h1>
   <p class="hero-sub">Register → Activate → Connect → Run.<br>Your own full-featured WhatsApp bot with AI, music, media, and group control — live in seconds.</p>
   <div class="hero-btns">
-    <a href="/register"><button class="btn btn-primary btn-lg">[ REGISTER_NODE ]</button></a>
-    <a href="/dashboard"><button class="btn btn-outline btn-lg">[ SIGN_IN ]</button></a>
+    <a href="/register"><button class="btn btn-primary btn-lg">⚡ Register Node</button></a>
+    <a href="/dashboard"><button class="btn btn-outline btn-lg">🔑 Sign In</button></a>
   </div>
 </section>
 
@@ -417,37 +358,36 @@
 <div class="features">
   <div class="feature-card">
     <div class="feature-icon">🎵</div>
-    <h3>AUDIO_MODULE</h3>
+    <h3>Audio_Module</h3>
     <p>Stream and download music from YouTube, Spotify queries, and more with .play, .song, .spotify commands.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">🤖</div>
-    <h3>AI_ENGINE</h3>
+    <h3>AI_Engine</h3>
     <p>Powered by GPT-4 and Gemini Pro. Neural query interface via .ai, .gpt, .gemini — no API key needed.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">👁️</div>
-    <h3>VIEWONCE_DECRYPT</h3>
+    <h3>ViewOnce_Decrypt</h3>
     <p>Pre-caches view-once media on arrival. Reveal instantly with .vv — works even after message expires.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">🛡️</div>
-    <h3>GROUP_CONTROL</h3>
+    <h3>Group_Control</h3>
     <p>Anti-link, anti-spam, anti-call, welcome/goodbye alerts, kick, promote, demote — full group management.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">📊</div>
-    <h3>LIVE_DASHBOARD</h3>
+    <h3>Live_Dashboard</h3>
     <p>Monitor your bot status, view real-time console logs, and control everything from your browser dashboard.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">🔐</div>
-    <h3>SESSION_ISOLATION</h3>
+    <h3>Session_Isolation</h3>
     <p>Each user runs their own isolated Baileys session. Your data, session files, and logs are fully private.</p>
   </div>
 </div>
 
-<!-- Logo showcase -->
 <div class="divider">── IDENTITY_MATRIX ──</div>
 <div class="logo-showcase">
   <img src="/logo.jpg" alt="Symptom Bot Logo">

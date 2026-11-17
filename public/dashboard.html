@@ -5,112 +5,259 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Symptom Bot</title>
 <link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#030a10;--bg2:#050f18;--card:#091520;--card2:#05101c;--border:#0d2535;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.12);--glow2:rgba(0,255,159,0.1);--text:#e0f0ff;--muted:#4a7a9b;--red:#ff4444;--yellow:#ffcc00;--dim:#1a3a50}
+  :root{
+    --bg:#030a10;--bg2:#050f18;--card:#091520;--card2:#05101c;
+    --border:#0d2535;--border2:#0f3248;
+    --accent:#00d4ff;--accent2:#00ff9f;--accent3:#7b61ff;
+    --glow:rgba(0,212,255,0.12);--glow2:rgba(0,255,159,0.1);
+    --text:#e0f0ff;--muted:#5a8aaa;--red:#ff4444;--yellow:#ffcc00;--dim:#1a3a50;
+  }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh}
-  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:9999}
-  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  html{height:100%}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;line-height:1.6;
+  }
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);pointer-events:none;z-index:9999}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
 
-  /* AUTH SCREEN */
-  #authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;position:relative;z-index:1}
+  /* ── AUTH SCREEN ── */
+  #authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;position:relative;z-index:1}
   .auth-wrap{width:100%;max-width:420px}
-  .logo-wrap{text-align:center;margin-bottom:1.5rem}
-  .logo-wrap img{width:80px;height:80px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 25px var(--accent);object-fit:cover;margin-bottom:.8rem}
-  .logo-title{font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:.2em;text-shadow:0 0 15px var(--accent)}
+
+  .logo-wrap{text-align:center;margin-bottom:1.8rem}
+  .logo-wrap img{width:76px;height:76px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 24px var(--accent);object-fit:cover;margin-bottom:.8rem}
+  .logo-title{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--accent);letter-spacing:.15em;text-shadow:0 0 16px rgba(0,212,255,0.4)}
   .logo-title span{color:var(--accent2)}
-  .logo-sub{font-size:.72rem;color:var(--muted);letter-spacing:.1em;margin-top:.2rem}
-  .card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:2rem;box-shadow:0 0 30px var(--glow)}
-  .card-title{font-size:.9rem;color:var(--accent);letter-spacing:.1em;margin-bottom:1.3rem;text-transform:uppercase}
-  .fg{margin-bottom:1rem}
-  label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.35rem;letter-spacing:.08em;text-transform:uppercase}
-  input{width:100%;padding:.7rem 1rem;background:#030d16;border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:.88rem;font-family:'Courier New',monospace;outline:none;transition:all .2s}
-  input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
-  input::placeholder{color:var(--dim)}
-  .btn{padding:.65rem 1.2rem;border-radius:4px;border:none;cursor:pointer;font-family:'Courier New',monospace;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+  .logo-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.12em;margin-top:.3rem}
+
+  .card{
+    background:rgba(9,21,32,0.95);
+    border:1px solid rgba(0,212,255,0.14);
+    border-radius:16px;padding:2rem;
+    box-shadow:0 0 40px rgba(0,212,255,0.08);
+    backdrop-filter:blur(10px);
+  }
+  .card-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.88rem;color:var(--accent);
+    letter-spacing:.08em;margin-bottom:1.5rem;text-transform:uppercase;
+  }
+
+  .fg{margin-bottom:1.1rem}
+  label{
+    display:block;font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;color:var(--muted);
+    margin-bottom:.4rem;letter-spacing:.1em;text-transform:uppercase;
+  }
+  input{
+    width:100%;padding:.75rem 1rem;
+    background:rgba(3,13,22,0.8);
+    border:1px solid rgba(0,212,255,0.15);
+    border-radius:8px;color:var(--text);
+    font-size:.88rem;font-family:'Inter',sans-serif;
+    outline:none;transition:all .2s;
+  }
+  input:focus{border-color:var(--accent);box-shadow:0 0 12px rgba(0,212,255,0.12);background:rgba(3,13,22,.95)}
+  input::placeholder{color:var(--dim);font-size:.82rem}
+
+  .btn{
+    padding:.6rem 1.1rem;border-radius:8px;border:none;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;
+    letter-spacing:.07em;text-transform:uppercase;transition:all .2s;
+    display:inline-flex;align-items:center;gap:.35rem;white-space:nowrap;
+  }
   .btn-primary{background:transparent;border:1px solid var(--accent);color:var(--accent)}
-  .btn-primary:hover{background:var(--accent);color:#000;box-shadow:0 0 18px var(--accent)}
+  .btn-primary:hover{background:var(--accent);color:#000;box-shadow:0 0 20px var(--accent)}
   .btn-primary:disabled{opacity:.4;cursor:not-allowed}
-  .btn-full{width:100%;padding:.82rem;margin-top:.3rem}
-  .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .btn-full{width:100%;padding:.82rem;margin-top:.4rem;justify-content:center}
+  .btn-outline{background:transparent;border:1px solid rgba(0,212,255,0.2);color:var(--muted)}
   .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
-  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red)}
-  .btn-danger:hover{background:var(--red);color:#fff}
-  .btn-green{background:transparent;border:1px solid var(--accent2);color:var(--accent2)}
-  .btn-green:hover{background:var(--accent2);color:#000;box-shadow:0 0 15px var(--accent2)}
-  .btn-sm{padding:.35rem .75rem;font-size:.72rem}
-  .alert{padding:.7rem 1rem;border-radius:4px;font-size:.8rem;margin-top:.7rem;display:none;font-family:system-ui}
-  .alert-error{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);color:#ff9999}
-  .alert-success{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
-  .links{text-align:center;margin-top:1.2rem;font-size:.78rem;color:var(--muted)}
+  .btn-danger{background:transparent;border:1px solid rgba(255,68,68,.5);color:#ff9999}
+  .btn-danger:hover{background:var(--red);color:#fff;box-shadow:0 0 14px rgba(255,68,68,.4)}
+  .btn-green{background:transparent;border:1px solid rgba(0,255,159,.5);color:var(--accent2)}
+  .btn-green:hover{background:var(--accent2);color:#000;box-shadow:0 0 16px var(--accent2)}
+  .btn-sm{padding:.35rem .7rem;font-size:.68rem;border-radius:6px}
+
+  .alert{padding:.7rem 1rem;border-radius:8px;font-size:.8rem;margin-top:.7rem;display:none;font-family:'Inter',sans-serif;line-height:1.5}
+  .alert-error{background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.25);color:#ff9999}
+  .alert-success{background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.25);color:#00ff9f}
+
+  .links{text-align:center;margin-top:1.2rem;font-size:.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
   .links a{color:var(--accent);text-decoration:none}
+  .links a:hover{text-shadow:0 0 8px var(--accent)}
 
-  /* DASHBOARD */
+  /* ── DASHBOARD ── */
   #dashboard{display:none;position:relative;z-index:1}
-  .topbar{display:flex;justify-content:space-between;align-items:center;padding:.9rem 2rem;border-bottom:1px solid var(--border2);background:rgba(3,10,16,0.97);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;box-shadow:0 0 20px rgba(0,212,255,0.08)}
+
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:.85rem 1.5rem;
+    border-bottom:1px solid rgba(0,212,255,0.1);
+    background:rgba(3,10,16,0.97);
+    backdrop-filter:blur(24px);
+    position:sticky;top:0;z-index:10;
+    box-shadow:0 1px 30px rgba(0,212,255,0.06);
+    gap:.8rem;flex-wrap:wrap;
+  }
   .topbar-logo{display:flex;align-items:center;gap:.7rem}
-  .topbar-logo img{width:36px;height:36px;border-radius:50%;border:1px solid var(--accent);box-shadow:0 0 10px var(--accent);object-fit:cover}
-  .topbar-name{font-size:.95rem;font-weight:700;color:var(--accent);letter-spacing:.15em}
+  .topbar-logo img{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--accent);box-shadow:0 0 10px var(--accent);object-fit:cover}
+  .topbar-name{font-family:'Orbitron',monospace;font-size:.88rem;font-weight:700;color:var(--accent);letter-spacing:.12em}
   .topbar-name span{color:var(--accent2)}
-  .topbar-right{display:flex;align-items:center;gap:.8rem}
-  .sync-badge{padding:.25rem .6rem;border-radius:4px;font-size:.68rem;letter-spacing:.05em;background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.25);color:var(--accent2)}
-  .user-badge{background:var(--card2);border:1px solid var(--border2);padding:.3rem .85rem;border-radius:4px;font-size:.78rem;color:var(--muted);letter-spacing:.05em}
-  .content{max-width:1100px;margin:0 auto;padding:1.8rem}
+  .topbar-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .sync-badge{
+    padding:.22rem .6rem;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.05em;
+    background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.2);color:var(--accent2);
+  }
+  .user-badge{
+    background:var(--card2);border:1px solid var(--border2);
+    padding:.28rem .75rem;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.04em;
+  }
 
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.3rem}
-  @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  .content{max-width:1080px;margin:0 auto;padding:1.5rem}
 
-  .panel{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:1.4rem;position:relative;overflow:hidden}
-  .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
-  .panel-title{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
-  .panel-title::before{content:'[!]';color:var(--accent);font-size:.65rem}
-  .stat-val{font-size:1.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-shadow:0 0 10px var(--accent)}
+  /* Grids */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.2rem}
+  @media(max-width:800px){.grid-2{grid-template-columns:1fr}}
+  @media(max-width:640px){.grid-3{grid-template-columns:1fr 1fr}}
+  @media(max-width:420px){.grid-3{grid-template-columns:1fr}}
+
+  /* Panels */
+  .panel{
+    background:rgba(9,21,32,0.9);
+    border:1px solid rgba(0,212,255,0.1);
+    border-radius:12px;padding:1.3rem;
+    position:relative;overflow:hidden;
+  }
+  .panel::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,212,255,0.4),transparent);
+  }
+  .panel-title{
+    font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.14em;margin-bottom:.8rem;
+    display:flex;align-items:center;gap:.4rem;
+  }
+  .panel-title::before{content:'[!]';color:var(--accent);font-size:.6rem}
+  .stat-val{
+    font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;
+    color:var(--accent);letter-spacing:.08em;text-shadow:0 0 10px var(--accent);
+  }
 
   /* Status badge */
-  .status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .8rem;border-radius:4px;font-size:.78rem;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.05em}
-  .status-connected{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
-  .status-stopped,.status-disconnected{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.25);color:#ff9999}
-  .status-starting,.status-waiting-pairing,.status-reconnecting{background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.25);color:#ffcc00}
+  .status-badge{
+    display:inline-flex;align-items:center;gap:.35rem;
+    padding:.22rem .75rem;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:.05em;
+  }
+  .status-connected{background:rgba(0,255,159,.07);border:1px solid rgba(0,255,159,.28);color:#00ff9f}
+  .status-stopped,.status-disconnected{background:rgba(255,68,68,.07);border:1px solid rgba(255,68,68,.22);color:#ff9999}
+  .status-starting,.status-waiting-pairing,.status-reconnecting{background:rgba(255,204,0,.07);border:1px solid rgba(255,204,0,.22);color:#ffcc00}
 
   /* Pairing box */
-  .pairing-box{background:#030d16;border:1px dashed var(--accent);border-radius:8px;padding:1.4rem;text-align:center;margin-top:1.2rem}
-  .pairing-code{font-size:2.2rem;font-weight:700;letter-spacing:.25em;color:var(--accent2);text-shadow:0 0 15px var(--accent2);font-family:'Courier New',monospace;padding:.5rem 1rem}
-  .pairing-hint{font-size:.75rem;color:var(--muted);margin-top:.8rem;line-height:1.7}
+  .pairing-box{
+    background:rgba(3,13,22,0.9);
+    border:1px dashed rgba(0,212,255,0.3);
+    border-radius:12px;padding:1.4rem;text-align:center;margin-top:1.2rem;
+  }
+  .pairing-code{
+    font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;
+    letter-spacing:.3em;color:var(--accent2);
+    text-shadow:0 0 18px rgba(0,255,159,0.5);
+    padding:.4rem 1rem;
+  }
+  .pairing-hint{
+    font-family:'Inter',sans-serif;font-size:.78rem;color:var(--muted);
+    margin-top:.7rem;line-height:1.75;text-align:left;
+  }
 
   /* Console */
-  .console{background:#020c14;border:1px solid var(--border2);border-radius:6px;padding:1rem;height:360px;overflow-y:auto;font-family:'Courier New',monospace;font-size:.75rem;line-height:1.7}
+  .console{
+    background:rgba(2,12,20,0.95);
+    border:1px solid rgba(0,212,255,0.1);
+    border-radius:10px;padding:.9rem;height:340px;overflow-y:auto;
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;line-height:1.75;
+  }
   .console::-webkit-scrollbar{width:4px}
   .console::-webkit-scrollbar-track{background:transparent}
   .console::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
-  .log-entry{color:var(--muted);padding:.1rem 0}
+  .log-entry{color:var(--muted);padding:.05rem 0}
   .log-entry.info{color:var(--accent2)}
   .log-entry.error{color:#ff9999}
 
   /* Section labels */
-  .section-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin:1.8rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border2)}
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.65rem;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.18em;margin:1.6rem 0 .8rem;
+    padding-bottom:.4rem;border-bottom:1px solid rgba(0,212,255,0.08);
+  }
 
   /* Commands */
-  .cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}
-  .cmd-tag{background:var(--card2);border:1px solid var(--border2);border-radius:4px;padding:.35rem .7rem;font-size:.72rem;font-family:'Courier New',monospace;color:var(--accent);transition:all .2s}
-  .cmd-tag:hover{border-color:var(--accent);box-shadow:0 0 8px var(--glow)}
+  .cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.45rem}
+  .cmd-tag{
+    background:rgba(5,16,28,0.8);
+    border:1px solid rgba(0,212,255,0.12);
+    border-radius:6px;padding:.32rem .65rem;
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);
+    transition:all .2s;cursor:default;
+  }
+  .cmd-tag:hover{border-color:rgba(0,212,255,.35);box-shadow:0 0 8px var(--glow);color:var(--accent2)}
 
   /* Settings row */
-  .settings-row{display:flex;gap:.8rem;align-items:stretch}
-  .settings-row input{flex:1}
+  .settings-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+  .settings-row input{flex:1;min-width:150px}
+
+  /* Admin link */
+  .admin-link-card{
+    background:rgba(0,212,255,0.04);
+    border:1px solid rgba(0,212,255,0.18);
+    border-radius:12px;padding:1.2rem;
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:1.2rem;gap:1rem;flex-wrap:wrap;
+  }
+  .admin-link-label{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);letter-spacing:.05em}
+  .admin-link-sub{font-size:.75rem;color:var(--muted);margin-top:.2rem;font-family:'Inter',sans-serif}
 
   /* Toast */
-  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);padding:.8rem 1.3rem;border-radius:6px;font-size:.8rem;font-family:'Courier New',monospace;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;max-width:320px;letter-spacing:.04em}
+  #toast{
+    position:fixed;bottom:1.5rem;right:1.5rem;
+    background:rgba(9,21,32,0.98);
+    border:1px solid var(--border2);
+    padding:.8rem 1.2rem;border-radius:10px;
+    font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.04em;
+    z-index:9999;opacity:0;transform:translateY(16px);
+    transition:all .28s;pointer-events:none;max-width:300px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  }
   #toast.show{opacity:1;transform:translateY(0)}
 
-  .admin-link-card{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:1.3rem;display:flex;align-items:center;justify-content:space-between;margin-top:1.3rem}
-  .admin-link-label{font-size:.82rem;color:var(--accent);letter-spacing:.05em}
-  .admin-link-sub{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+  /* Mobile tweaks */
+  @media(max-width:640px){
+    .topbar{padding:.7rem 1rem}
+    .topbar-name{font-size:.78rem}
+    .sync-badge,.user-badge{font-size:.62rem}
+    .content{padding:1rem}
+    .panel{padding:1rem}
+    .pairing-code{font-size:1.5rem;letter-spacing:.2em}
+    .cmd-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+    .settings-row{flex-direction:column;align-items:stretch}
+    .settings-row input,.settings-row .btn{width:100%}
+    .admin-link-card{flex-direction:column;align-items:flex-start}
+  }
 </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
+<!-- ══ AUTH SCREEN ══ -->
 <div id="authScreen">
   <div class="auth-wrap">
     <div class="logo-wrap">
@@ -120,26 +267,27 @@
     </div>
 
     <div class="card">
-      <div class="card-title">&gt; Authenticate Node</div>
+      <div class="card-title">› Authenticate Node</div>
       <form id="loginForm">
         <div class="fg">
           <label>Node ID (Username)</label>
-          <input type="text" id="loginUsername" placeholder="your_username" required>
+          <input type="text" id="loginUsername" placeholder="your_username" required autocomplete="username">
         </div>
         <div class="fg">
           <label>Access Key (Password)</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
         </div>
-        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">[ AUTHENTICATE ]</button>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">[ Authenticate ]</button>
         <div class="alert alert-error" id="loginErr"></div>
       </form>
-      <div class="links" style="margin-top:1.2rem">No node? <a href="/register">[ REGISTER_NODE ]</a></div>
+      <div class="links" style="margin-top:1.2rem">No node? <a href="/register">[ Register Node ]</a></div>
     </div>
   </div>
 </div>
 
-<!-- Dashboard -->
+<!-- ══ DASHBOARD ══ -->
 <div id="dashboard">
+
   <div class="topbar">
     <div class="topbar-logo">
       <img src="/logo.jpg" alt="Symptom Bot">
@@ -150,7 +298,7 @@
     <div class="topbar-right">
       <span class="sync-badge" id="syncBadge">🟢 BACKEND_CONNECTED</span>
       <span class="user-badge" id="topUsername">NODE: ...</span>
-      <button class="btn btn-outline" onclick="logout()">[ LOGOUT ]</button>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
     </div>
   </div>
 
@@ -159,89 +307,85 @@
     <!-- Stat panels -->
     <div class="grid-3">
       <div class="panel">
-        <div class="panel-title">BOT_STATUS</div>
-        <div><span class="status-badge status-stopped" id="statusBadge">⚫ OFFLINE</span></div>
+        <div class="panel-title">Bot_Status</div>
+        <span class="status-badge status-stopped" id="statusBadge">⚫ OFFLINE</span>
       </div>
       <div class="panel">
-        <div class="panel-title">LINKED_NUMBER</div>
-        <div class="stat-val" id="phoneDisplay" style="font-size:1.1rem;color:var(--accent2)">NOT_LINKED</div>
+        <div class="panel-title">Linked_Number</div>
+        <div class="stat-val" id="phoneDisplay" style="font-size:1rem;color:var(--accent2)">NOT_LINKED</div>
       </div>
       <div class="panel">
-        <div class="panel-title">ACCESS_LEVEL</div>
-        <div class="stat-val" id="roleDisplay" style="font-size:1.1rem">USER</div>
+        <div class="panel-title">Access_Level</div>
+        <div class="stat-val" id="roleDisplay" style="font-size:1rem">USER</div>
       </div>
     </div>
 
     <div class="grid-2">
-      <!-- Left: WhatsApp Pairing Station -->
+      <!-- Left: Pairing Station -->
       <div>
         <div class="panel">
-          <div class="panel-title">WHATSAPP_PAIRING_STATION</div>
-          <p style="color:var(--muted);font-size:.76rem;margin-bottom:.8rem;line-height:1.5">
-            Type the <strong>exact phone number</strong> of your WhatsApp account (country code + number, no + sign).
-            <br><span style="color:var(--yellow)">⚠️ Example: <strong>237620323830</strong> or <strong>237652673304</strong></span>
+          <div class="panel-title">WhatsApp_Pairing_Station</div>
+          <p style="color:var(--muted);font-size:.78rem;margin-bottom:.9rem;line-height:1.65;font-family:'Inter',sans-serif">
+            Enter the <strong style="color:var(--text)">exact phone number</strong> of your WhatsApp account (country code + number, no + sign).
+            <br><span style="color:var(--yellow);font-size:.73rem">⚠️ Example: <strong>237620323830</strong></span>
           </p>
 
           <div class="settings-row" style="margin-bottom:.9rem">
             <input type="tel" id="pairPhoneInput" placeholder="e.g. 237620323830">
-            <button class="btn btn-green" id="pairBtn" onclick="pairWhatsApp()">⚡ GET PAIRING CODE</button>
+            <button class="btn btn-green" id="pairBtn" onclick="pairWhatsApp()">⚡ Get Code</button>
           </div>
 
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-            <button class="btn btn-danger btn-sm" onclick="stopBot()" id="stopBtn">⏹ STOP_BOT</button>
-            <button class="btn btn-outline btn-sm" onclick="resetSession()" id="resetBtn" title="Wipes old session keys to start fresh pairing">↻ RESET_SESSION</button>
-            <button class="btn btn-outline btn-sm" onclick="refreshStatus()">↻ STATUS</button>
+          <div style="display:flex;gap:.45rem;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" onclick="stopBot()" id="stopBtn">⏹ Stop Bot</button>
+            <button class="btn btn-outline btn-sm" onclick="resetSession()" id="resetBtn" title="Wipes old session keys">↻ Reset Session</button>
+            <button class="btn btn-outline btn-sm" onclick="refreshStatus()">↻ Refresh</button>
           </div>
 
           <div class="alert alert-error" id="panelError" style="margin-top:.8rem"></div>
 
-          <!-- Pairing code output box -->
+          <!-- Pairing code box -->
           <div class="pairing-box" id="pairingBox" style="display:none">
-            <div id="pairingTargetPhone" style="font-size:.75rem;color:var(--accent2);margin-bottom:.4rem;letter-spacing:.05em">
-              Target Phone: ...
-            </div>
-            <div id="pairingStatusHeader" style="font-size:.72rem;color:var(--accent);margin-bottom:.6rem;letter-spacing:.08em">
-              [!] ENTER CODE IN WHATSAPP → LINKED_DEVICES
-            </div>
+            <div id="pairingTargetPhone" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent2);margin-bottom:.4rem;letter-spacing:.05em">Target Phone: ...</div>
+            <div id="pairingStatusHeader" style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);margin-bottom:.6rem;letter-spacing:.08em">[!] ENTER CODE IN WHATSAPP → LINKED_DEVICES</div>
 
-            <!-- Code display -->
-            <div style="display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;margin:.4rem 0">
+            <div style="display:flex;align-items:center;justify-content:center;gap:.7rem;flex-wrap:wrap;margin:.4rem 0">
               <div class="pairing-code" id="pairingCodeDisplay">----</div>
-              <button class="btn btn-outline btn-sm" id="copyCodeBtn" onclick="copyPairingCode()">📋 COPY</button>
-              <button class="btn btn-outline btn-sm" onclick="pairWhatsApp()">↻ NEW CODE</button>
+              <div style="display:flex;flex-direction:column;gap:.4rem">
+                <button class="btn btn-outline btn-sm" id="copyCodeBtn" onclick="copyPairingCode()">📋 Copy</button>
+                <button class="btn btn-outline btn-sm" onclick="pairWhatsApp()">↻ New Code</button>
+              </div>
             </div>
 
-            <!-- Optional QR Code Display -->
             <div id="qrBox" style="display:none;margin:1rem auto;text-align:center">
-              <div style="font-size:.7rem;color:var(--muted);margin-bottom:.5rem">[ OR SCAN QR CODE WITH WHATSAPP CAMERA ]</div>
-              <img id="qrImage" src="" alt="Scan QR" style="width:190px;height:190px;border:2px solid var(--accent);border-radius:8px;background:#fff;padding:6px">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:.5rem">[ OR SCAN QR CODE WITH WHATSAPP CAMERA ]</div>
+              <img id="qrImage" src="" alt="Scan QR" style="width:180px;height:180px;border:2px solid var(--accent);border-radius:10px;background:#fff;padding:6px">
             </div>
 
-            <div class="pairing-hint" style="text-align:left;background:#020910;padding:.8rem;border-radius:4px;border:1px solid var(--border2);margin-top:.8rem">
-              <strong style="color:var(--accent2)">Quick Steps to link:</strong><br>
+            <div class="pairing-hint" style="background:rgba(2,9,16,0.8);padding:.8rem;border-radius:8px;border:1px solid rgba(0,212,255,0.08);margin-top:.8rem">
+              <strong style="color:var(--accent2);font-family:'JetBrains Mono',monospace;font-size:.72rem">Quick Steps to link:</strong><br>
               1. Open WhatsApp on your phone<br>
-              2. Go to <strong>Settings</strong> &gt; <strong>Linked Devices</strong><br>
-              3. Tap <strong>Link a Device</strong> &gt; <strong>Link with phone number instead</strong><br>
+              2. Go to <strong>Settings</strong> › <strong>Linked Devices</strong><br>
+              3. Tap <strong>Link a Device</strong> › <strong>Link with phone number instead</strong><br>
               4. Enter the 8-digit code shown above.<br>
-              <span style="color:var(--yellow);font-size:.7rem">⚠️ If you see "couldn't link", verify the number entered above matches your WhatsApp Profile exactly!</span>
+              <span style="color:var(--yellow);font-size:.7rem">⚠️ If you see "couldn't link", verify the number matches your WhatsApp Profile exactly!</span>
             </div>
           </div>
         </div>
 
-        <div class="panel" style="margin-top:1.2rem">
-          <div class="panel-title">CHANGE_ACCESS_KEY</div>
+        <div class="panel" style="margin-top:1.1rem">
+          <div class="panel-title">Change_Access_Key</div>
           <div class="fg"><label>Current Key</label><input type="password" id="curPwd" placeholder="current password"></div>
           <div class="fg"><label>New Key</label><input type="password" id="newPwd" placeholder="new password (min 6)"></div>
-          <button class="btn btn-primary" onclick="changePwd()">[ UPDATE_KEY ]</button>
+          <button class="btn btn-primary" onclick="changePwd()">[ Update Key ]</button>
         </div>
       </div>
 
-      <!-- Right: Real-time Terminal Console -->
+      <!-- Right: Live Console -->
       <div>
         <div class="panel" style="height:100%">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
-            <div class="panel-title" style="margin:0">LIVE_CONSOLE_OUTPUT</div>
-            <button class="btn btn-outline" style="padding:.25rem .6rem;font-size:.7rem" onclick="clearConsole()">[ CLR ]</button>
+            <div class="panel-title" style="margin:0">Live_Console_Output</div>
+            <button class="btn btn-outline btn-sm" onclick="clearConsole()">CLR</button>
           </div>
           <div class="console" id="consoleOutput">
             <div class="log-entry info">[SYSTEM] AWAITING NODE ACTIVATION...</div>
@@ -288,7 +432,7 @@
           <div class="admin-link-label">👑 SUPER_ADMIN :: CONTROL_PANEL</div>
           <div class="admin-link-sub">Manage all nodes, activate/deactivate access, view system logs</div>
         </div>
-        <a href="/admin"><button class="btn btn-primary">[ OPEN_ADMIN ] →</button></a>
+        <a href="/admin"><button class="btn btn-primary">[ Open Admin ] →</button></a>
       </div>
     </div>
 
@@ -326,7 +470,7 @@ function setSyncStatus(ok) {
   if (ok) {
     b.textContent = '🟢 BACKEND_CONNECTED'
     b.style.color = '#00ff9f'
-    b.style.borderColor = 'rgba(0,255,159,.25)'
+    b.style.borderColor = 'rgba(0,255,159,.2)'
   } else {
     b.textContent = '🔴 SERVER_OFFLINE'
     b.style.color = '#ff9999'
@@ -429,7 +573,7 @@ async function pairWhatsApp() {
 
   const btn = document.getElementById('pairBtn')
   btn.disabled = true
-  btn.textContent = '⏳ GENERATING...'
+  btn.textContent = '⏳ Generating...'
 
   const pBox = document.getElementById('pairingBox')
   pBox.style.display = 'block'
@@ -447,7 +591,7 @@ async function pairWhatsApp() {
       errEl.textContent = '[!] Cannot connect to server. Check connection.'
       errEl.style.display = 'block'
       btn.disabled = false
-      btn.textContent = '⚡ GET PAIRING CODE'
+      btn.textContent = '⚡ Get Code'
       return
     }
     const d = await r.json()
@@ -456,7 +600,7 @@ async function pairWhatsApp() {
       errEl.style.display = 'block'
       toast(d.error || 'FAILED_TO_START', 'error')
       btn.disabled = false
-      btn.textContent = '⚡ GET PAIRING CODE'
+      btn.textContent = '⚡ Get Code'
       return
     }
 
@@ -464,7 +608,6 @@ async function pairWhatsApp() {
     toast('PAIRING_REQUESTED', 'success')
     addLog(`[SYSTEM] Fresh pairing requested for +${phone}...`)
 
-    // Fast poll for pairing code (every 1.5s for up to 30s)
     if (pollInterval) clearInterval(pollInterval)
     let attempts = 0
     pollInterval = setInterval(async () => {
@@ -472,7 +615,7 @@ async function pairWhatsApp() {
       if (attempts > 25) {
         clearInterval(pollInterval)
         btn.disabled = false
-        btn.textContent = '⚡ GET PAIRING CODE'
+        btn.textContent = '⚡ Get Code'
         return
       }
 
@@ -485,7 +628,7 @@ async function pairWhatsApp() {
         if (pd.pairingCode && pd.pairingCode !== 'REQUESTING...') {
           clearInterval(pollInterval)
           btn.disabled = false
-          btn.textContent = '⚡ GET PAIRING CODE'
+          btn.textContent = '⚡ Get Code'
         }
       }
 
@@ -494,10 +637,9 @@ async function pairWhatsApp() {
         setStatusBadge('connected')
         document.getElementById('pairingBox').style.display = 'none'
         btn.disabled = false
-        btn.textContent = '⚡ GET PAIRING CODE'
+        btn.textContent = '⚡ Get Code'
       }
 
-      // Keep console logs synced
       loadLogs()
     }, 1500)
   } catch (err) {
@@ -505,13 +647,13 @@ async function pairWhatsApp() {
     errEl.style.display = 'block'
     toast(err.message, 'error')
     btn.disabled = false
-    btn.textContent = '⚡ GET PAIRING CODE'
+    btn.textContent = '⚡ Get Code'
   }
 }
 
 async function stopBot() {
   const btn = document.getElementById('stopBtn')
-  btn.disabled = true; btn.textContent = '⏳ STOPPING...'
+  btn.disabled = true; btn.textContent = '⏳ Stopping...'
   try {
     const r = await fetchWithAuth('/api/user/bot/stop', { method: 'POST' })
     if (!r) return
@@ -519,7 +661,7 @@ async function stopBot() {
     toast(d.message || d.error, r.ok ? 'success' : 'error')
     document.getElementById('pairingBox').style.display = 'none'
     refreshStatus()
-  } finally { btn.disabled=false; btn.textContent='⏹ STOP_BOT' }
+  } finally { btn.disabled=false; btn.textContent='⏹ Stop Bot' }
 }
 
 async function resetSession() {
@@ -580,7 +722,6 @@ async function initDashboard() {
 
   await loadLogs()
 
-  // Real-time Socket.IO
   socket = io({ auth: { token } })
   socket.on('connect', () => setSyncStatus(true))
   socket.on('disconnect', () => setSyncStatus(false))
@@ -612,7 +753,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const loginPassword = document.getElementById('loginPassword').value
   const btn = document.getElementById('loginBtn')
   const errEl = document.getElementById('loginErr')
-  btn.disabled = true; btn.textContent = '[ AUTHENTICATING... ]'; errEl.style.display = 'none'
+  btn.disabled = true; btn.textContent = '[ Authenticating... ]'; errEl.style.display = 'none'
   try {
     const r = await fetch('/api/auth/login', {
       method: 'POST',
@@ -633,7 +774,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       initDashboard()
     }
   } catch { errEl.textContent = '[!] NETWORK_ERROR — Connection refused'; errEl.style.display = 'block' }
-  finally { btn.disabled = false; btn.textContent = '[ AUTHENTICATE ]' }
+  finally { btn.disabled = false; btn.textContent = '[ Authenticate ]' }
 })
 
 if (token) {

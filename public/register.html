@@ -5,40 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register — Symptom Bot</title>
 <link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#030a10;--card:#091520;--border:#0d2535;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.15);--text:#e0f0ff;--muted:#4a7a9b;--red:#ff4444;--dim:#1a3a50}
+  :root{--bg:#030a10;--card:#091520;--border2:#0f3248;--accent:#00d4ff;--accent2:#00ff9f;--glow:rgba(0,212,255,0.15);--text:#e0f0ff;--muted:#5a8aaa;--red:#ff4444;--dim:#1a3a50}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
-  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999}
-  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  html{height:100%}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:1.5rem;
+  }
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);pointer-events:none;z-index:9999}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+
   .container{width:100%;max-width:440px;z-index:1}
-  .logo-wrap{text-align:center;margin-bottom:1.5rem}
-  .logo-wrap img{width:72px;height:72px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 20px var(--accent);object-fit:cover;margin-bottom:.7rem}
-  .logo-title{font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:.2em;text-shadow:0 0 10px var(--accent)}
+
+  .logo-wrap{text-align:center;margin-bottom:1.8rem}
+  .logo-wrap img{width:76px;height:76px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 24px var(--accent);object-fit:cover;margin-bottom:.8rem}
+  .logo-title{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--accent);letter-spacing:.15em;text-shadow:0 0 16px rgba(0,212,255,0.4)}
   .logo-title span{color:var(--accent2)}
-  .logo-sub{font-size:.72rem;color:var(--muted);letter-spacing:.1em;margin-top:.2rem}
-  .card{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:2rem;box-shadow:0 0 30px var(--glow)}
-  .card-title{font-size:1rem;color:var(--accent);letter-spacing:.1em;margin-bottom:1.4rem;text-transform:uppercase}
-  .fg{margin-bottom:1rem}
-  label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.08em;text-transform:uppercase}
-  input{width:100%;padding:.72rem 1rem;background:#030d16;border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:.88rem;font-family:'Courier New',monospace;outline:none;transition:border-color .2s,box-shadow .2s}
-  input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--glow)}
-  input::placeholder{color:var(--dim)}
-  .hint{font-size:.72rem;color:var(--dim);margin-top:.3rem;letter-spacing:.03em}
-  .btn{width:100%;padding:.8rem;border-radius:4px;border:1px solid var(--accent);cursor:pointer;font-family:'Courier New',monospace;font-size:.88rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:.5rem;transition:all .2s;background:transparent;color:var(--accent)}
-  .btn:hover{background:var(--accent);color:#000;box-shadow:0 0 20px var(--accent)}
+  .logo-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.12em;margin-top:.3rem}
+
+  .card{
+    background:rgba(9,21,32,0.95);
+    border:1px solid rgba(0,212,255,0.14);
+    border-radius:16px;padding:2rem;
+    box-shadow:0 0 40px rgba(0,212,255,0.08);
+    backdrop-filter:blur(10px);
+  }
+  .card-top{
+    display:flex;align-items:center;gap:.5rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;color:var(--accent2);letter-spacing:.1em;
+    margin-bottom:1.5rem;padding-bottom:1rem;
+    border-bottom:1px solid rgba(0,212,255,0.08);
+  }
+  .card-top::before{content:'●';color:var(--accent2);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .card-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.88rem;color:var(--accent);
+    letter-spacing:.08em;margin-bottom:1.5rem;text-transform:uppercase;
+  }
+
+  .fg{margin-bottom:1.1rem}
+  label{
+    display:block;font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;color:var(--muted);
+    margin-bottom:.4rem;letter-spacing:.1em;text-transform:uppercase;
+  }
+  input{
+    width:100%;padding:.75rem 1rem;
+    background:rgba(3,13,22,0.8);
+    border:1px solid rgba(0,212,255,0.15);
+    border-radius:8px;color:var(--text);
+    font-size:.88rem;font-family:'Inter',sans-serif;
+    outline:none;transition:all .2s;
+  }
+  input:focus{border-color:var(--accent);box-shadow:0 0 12px rgba(0,212,255,0.12);background:rgba(3,13,22,0.95)}
+  input::placeholder{color:var(--dim);font-size:.82rem}
+  .hint{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--dim);margin-top:.35rem;letter-spacing:.04em}
+
+  .btn{
+    width:100%;padding:.8rem;border-radius:8px;
+    border:1px solid var(--accent);cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+    margin-top:.6rem;transition:all .22s;
+    background:transparent;color:var(--accent);
+  }
+  .btn:hover{background:var(--accent);color:#000;box-shadow:0 0 24px var(--accent)}
   .btn:disabled{opacity:.4;cursor:not-allowed}
-  .alert{padding:.8rem 1rem;border-radius:4px;font-size:.8rem;margin-top:.8rem;display:none;letter-spacing:.03em;font-family:system-ui,sans-serif}
-  .alert-error{background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);color:#ff9999}
-  .alert-success{background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);color:#00ff9f}
-  .links{text-align:center;margin-top:1.2rem;font-size:.78rem;color:var(--muted);letter-spacing:.05em}
-  .links a{color:var(--accent);text-decoration:none}
-  .links a:hover{text-shadow:0 0 8px var(--accent)}
-  .status-line{font-size:.7rem;color:var(--accent2);margin-bottom:1.2rem;letter-spacing:.08em}
+
+  .alert{
+    padding:.8rem 1rem;border-radius:8px;font-size:.8rem;
+    margin-top:.9rem;display:none;letter-spacing:.03em;
+    font-family:'Inter',sans-serif;line-height:1.5;
+  }
+  .alert-error{background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.25);color:#ff9999}
+  .alert-success{background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.25);color:#00ff9f}
+
+  .links{
+    text-align:center;margin-top:1.3rem;
+    font-size:.78rem;color:var(--muted);letter-spacing:.04em;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .links a{color:var(--accent);text-decoration:none;transition:text-shadow .2s}
+  .links a:hover{text-shadow:0 0 10px var(--accent)}
+
+  .back-link{
+    display:block;text-align:center;margin-bottom:1rem;
+    font-family:'JetBrains Mono',monospace;font-size:.7rem;
+    color:var(--muted);text-decoration:none;letter-spacing:.08em;
+    transition:color .2s;
+  }
+  .back-link:hover{color:var(--accent)}
+
+  @media(max-width:480px){
+    body{padding:1rem;align-items:flex-start;padding-top:2rem}
+    .card{padding:1.5rem 1.2rem;border-radius:12px}
+    .logo-wrap img{width:60px;height:60px}
+    .logo-title{font-size:1.1rem}
+  }
 </style>
 </head>
 <body>
 <div class="container">
+  <a class="back-link" href="/">← Back to home</a>
+
   <div class="logo-wrap">
     <img src="/logo.jpg" alt="Symptom Bot">
     <div class="logo-title">SYMPTOM<span>_BOT</span></div>
@@ -46,13 +123,13 @@
   </div>
 
   <div class="card">
-    <div class="status-line">● STATUS :: REGISTRATION_OPEN</div>
-    <div class="card-title">&gt; Initialize New Node</div>
+    <div class="card-top">STATUS :: REGISTRATION_OPEN</div>
+    <div class="card-title">› Initialize New Node</div>
     <form id="registerForm">
       <div class="fg">
         <label>Username</label>
         <input type="text" id="username" placeholder="e.g. johndoe_99" required minlength="3" maxlength="20">
-        <div class="hint">&gt; 3-20 chars · letters, numbers, underscore only</div>
+        <div class="hint">› 3–20 chars · letters, numbers, underscore only</div>
       </div>
       <div class="fg">
         <label>Email Address</label>
@@ -61,7 +138,7 @@
       <div class="fg">
         <label>WhatsApp Number</label>
         <input type="tel" id="phoneNumber" placeholder="237620323830 (country code, no +)">
-        <div class="hint">&gt; Can be set later from your dashboard</div>
+        <div class="hint">› Can be set later from your dashboard</div>
       </div>
       <div class="fg">
         <label>Access Key (Password)</label>
@@ -71,11 +148,11 @@
         <label>Confirm Access Key</label>
         <input type="password" id="confirmPassword" placeholder="Repeat password" required>
       </div>
-      <button type="submit" class="btn" id="submitBtn">[ REGISTER_NODE ]</button>
+      <button type="submit" class="btn" id="submitBtn">[ Register Node ]</button>
       <div class="alert alert-error" id="errAlert"></div>
       <div class="alert alert-success" id="successAlert"></div>
     </form>
-    <div class="links" style="margin-top:1.5rem">Already have a node? <a href="/dashboard">[ ACCESS_PORTAL ]</a></div>
+    <div class="links" style="margin-top:1.5rem">Already have a node? <a href="/dashboard">[ Access Portal ]</a></div>
   </div>
 </div>
 
@@ -114,7 +191,7 @@
         setTimeout(() => window.location.href = '/dashboard', 3500)
       }
     } catch { showError('NETWORK_ERROR — Connection refused. Try again.') }
-    finally { submitBtn.disabled=false; submitBtn.textContent='[ REGISTER_NODE ]' }
+    finally { submitBtn.disabled=false; submitBtn.textContent='[ Register Node ]' }
   })
 </script>
 </body>
