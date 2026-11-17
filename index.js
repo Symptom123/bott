@@ -151,7 +151,7 @@ async function startXeonBotInc() {
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
         },
         markOnlineOnConnect: true,
-        generateHighQualityLinkPreview: true,
+        generateHighQualityLinkPreview: false, // disabled to reduce send overhead & timeouts
         syncFullHistory: true,
         getMessage: async (key) => {
             if (store) {
@@ -161,6 +161,9 @@ async function startXeonBotInc() {
             }
             return ""
         },
+        // cachedGroupMetadata prevents live groupMetadata() calls on every group send
+        // Without this, Baileys calls rawGroupMetadata(jid) per send → Timed Out errors
+        cachedGroupMetadata: async (jid) => groupMetadataCache.get(jid) ?? undefined,
         msgRetryCounterCache,
         defaultQueryTimeoutMs: undefined,
     })
@@ -182,8 +185,14 @@ async function startXeonBotInc() {
             }
             return result
         } catch (err) {
-            // Fallback: If sending with quoted message failed in groups, retry without quote
-            if (args[2]?.quoted) {
+            const msg = String(err?.message || '')
+
+            // Silently ignore connection-level errors — no retry needed
+            if (msg.includes('Connection Closed') || msg.includes('connection closed') ||
+                msg.includes('not-authorized') || msg.includes('Bad MAC')) return null
+
+            // If the first attempt timed out or the quote caused the failure, retry without quote
+            if (args[2]?.quoted || msg.includes('Timed Out') || msg.includes('timed out')) {
                 try {
                     const { quoted, ...cleanOptions } = args[2] || {}
                     const result = await rawSendMessage(args[0], args[1], cleanOptions)
@@ -192,14 +201,18 @@ async function startXeonBotInc() {
                     }
                     return result
                 } catch (retryErr) {
-                    console.error('[index] Send retry without quote failed:', retryErr.message)
+                    const retryMsg = String(retryErr?.message || '')
+                    // If still timing out after retry, log quietly and give up — don't crash
+                    if (retryMsg.includes('Timed Out') || retryMsg.includes('timed out')) {
+                        console.log('[index] ⚠️ Send timed out (retried, giving up quietly)')
+                        return null
+                    }
+                    console.log('[index] ⚠️ Send retry failed:', retryErr.message)
                 }
-            }
-            const msg = String(err?.message || err)
-            if (msg.includes('Connection Closed') || msg.includes('connection')) {
-                // Expected during reconnect - don't throw
                 return null
             }
+
+            console.error('[index] ❌ Send error:', err.message)
             throw err
         }
     }
