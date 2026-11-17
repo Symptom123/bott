@@ -220,12 +220,6 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return; // Silently ignore messages from non-owners when in private mode
         }
 
-        // Quick group check for .ping to verify message sending immediately
-        if (isGroup && userMessage === '.ping') {
-            console.log(`[GROUP_TEST] Immediate .ping reply executing for group ${chatId}...`);
-            await sock.sendMessage(chatId, { text: '⚡ [SYMPTOM BOT] Ping received! Bot is active in this group.' });
-            return;
-        }
 
         // Check if user is banned (skip ban check for unban command)
         if (isBanned(senderPhone) && !userMessage.startsWith('.unban')) {

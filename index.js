@@ -145,25 +145,24 @@ async function startXeonBotInc() {
         version,
         logger: pino({ level: 'silent' }),
         printQRInTerminal: !pairingCode,
-        browser: Browsers.ubuntu('Chrome'),
+        browser: ["Ubuntu", "Chrome", "20.0.04"],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
         },
         markOnlineOnConnect: true,
-        generateHighQualityLinkPreview: false,   // saves bandwidth & CPU
-        syncFullHistory: false,
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: true,
         getMessage: async (key) => {
             if (store) {
                 const jid = jidNormalizedUser(key.remoteJid)
                 const msg = await store.loadMessage(jid, key.id)
-                return msg?.message || undefined
+                return msg?.message || ""
             }
-            return proto.Message.fromObject({})
+            return ""
         },
-        cachedGroupMetadata: async (jid) => groupMetadataCache.get(jid),
         msgRetryCounterCache,
-        defaultQueryTimeoutMs: 30000,
+        defaultQueryTimeoutMs: undefined,
     })
 
     sock.public = true
@@ -313,10 +312,23 @@ async function startXeonBotInc() {
             const mek = chatUpdate.messages?.[0]
             if (!mek?.message) return
 
+            // Unwrap ephemeral message layer if present
+            mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage') 
+                ? mek.message.ephemeralMessage.message 
+                : mek.message
+
             // Status broadcasts → handleStatus only
             if (mek.key?.remoteJid === 'status@broadcast') {
                 await handleStatus(sock, chatUpdate).catch(() => {})
                 return
+            }
+
+            if (!sock.public && !mek.key?.fromMe && chatUpdate.type === 'notify') return
+            if (mek.key?.id?.startsWith('BAE5') && mek.key.id.length === 16) return
+
+            // Clear message retry cache to prevent memory bloat
+            if (sock?.msgRetryCounterCache) {
+                sock.msgRetryCounterCache.clear()
             }
 
             // All other messages → handleMessages
