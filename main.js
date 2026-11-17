@@ -212,9 +212,21 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
         // Enforce private mode BEFORE any replies (except owner/sudo)
         const modeData = getModeData();
-        if (!modeData.isPublic && !message.key.fromMe && !senderIsSudo) {
+        const isPublicMode = (modeData && typeof modeData.isPublic === 'boolean') 
+            ? modeData.isPublic 
+            : (settings.commandMode === 'public');
+        if (!isPublicMode && !message.key.fromMe && !senderIsSudo) {
+            console.log(`[MODE] Message ignored because bot is in PRIVATE mode and sender (${senderId}) is not owner/sudo`);
             return; // Silently ignore messages from non-owners when in private mode
         }
+
+        // Quick group check for .ping to verify message sending immediately
+        if (isGroup && userMessage === '.ping') {
+            console.log(`[GROUP_TEST] Immediate .ping reply executing for group ${chatId}...`);
+            await sock.sendMessage(chatId, { text: '⚡ [SYMPTOM BOT] Ping received! Bot is active in this group.' });
+            return;
+        }
+
         // Check if user is banned (skip ban check for unban command)
         if (isBanned(senderPhone) && !userMessage.startsWith('.unban')) {
             // Only respond occasionally to avoid spam
@@ -233,22 +245,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return;
         }
 
-        /*  // Basic message response in private chat
-          if (!isGroup && (userMessage === 'hi' || userMessage === 'hello' || userMessage === 'bot' || userMessage === 'hlo' || userMessage === 'hey' || userMessage === 'bro')) {
-              await sock.sendMessage(chatId, {
-                  text: 'Hi, How can I help you?\nYou can use .menu for more info and commands.',
-                  ...channelInfo
-              });
-              return;
-          } */
-
         if (!message.key.fromMe) incrementMessageCount(chatId, senderId);
 
-        // Check for bad words FIRST, before ANY other processing
+        // Check for bad words and links asynchronously without blocking commands
         if (isGroup && userMessage) {
-            await handleBadwordDetection(sock, chatId, message, userMessage, senderId);
-            
-            await Antilink(message, sock);
+            handleBadwordDetection(sock, chatId, message, userMessage, senderId).catch(() => {});
+            Antilink(message, sock).catch(() => {});
         }
 
         // PM blocker: block non-owner DMs when enabled (do not ban)
